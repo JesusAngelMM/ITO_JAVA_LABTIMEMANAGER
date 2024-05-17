@@ -10,11 +10,12 @@ package Windows;
  */
 public class UserDashboard extends javax.swing.JFrame {
 
-    /**
-     * Creates new form UserDashboard
-     */
-    public UserDashboard() {
+    String nombre_usuario;
+    
+    public UserDashboard(String nombre_usuario) {
+        this.nombre_usuario = nombre_usuario;
         initComponents();
+        txtBienvenido.setText("!Bienvenido " + nombre_usuario + "!");
     }
 
     /**
@@ -49,7 +50,7 @@ public class UserDashboard extends javax.swing.JFrame {
         lblSelectMateriales = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
         jButton2 = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
+        txtBienvenido = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         jLabel3 = new javax.swing.JLabel();
@@ -265,9 +266,9 @@ public class UserDashboard extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel4.setText("¡Bienvenido ");
+        txtBienvenido.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        txtBienvenido.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        txtBienvenido.setText("¡Bienvenido");
 
         jLabel1.setText("Estatus del usuario");
 
@@ -368,7 +369,7 @@ public class UserDashboard extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtBienvenido, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel1)
                                 .addGap(0, 0, Short.MAX_VALUE))
@@ -400,7 +401,7 @@ public class UserDashboard extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(18, 18, 18)
-                .addComponent(jLabel4)
+                .addComponent(txtBienvenido)
                 .addGap(5, 5, 5)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(3, 3, 3)
@@ -478,7 +479,7 @@ public class UserDashboard extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new UserDashboard().setVisible(true);
+                new UserDashboard(null).setVisible(true);
             }
         });
     }
@@ -508,7 +509,6 @@ public class UserDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -535,5 +535,6 @@ public class UserDashboard extends javax.swing.JFrame {
     private javax.swing.JCheckBoxMenuItem opcionOscuro;
     private javax.swing.JMenu subMenuApariencia;
     private javax.swing.JTable tablaHorarios;
+    private javax.swing.JLabel txtBienvenido;
     // End of variables declaration//GEN-END:variables
 }

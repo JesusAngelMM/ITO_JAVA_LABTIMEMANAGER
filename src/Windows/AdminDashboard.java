@@ -10,11 +10,12 @@ package Windows;
  */
 public class AdminDashboard extends javax.swing.JFrame {
 
-    /**
-     * Creates new form AdminDashboard
-     */
-    public AdminDashboard() {
+    String nombre_admin;
+    
+    public AdminDashboard(String nombre_admin) {
+        this.nombre_admin = nombre_admin;
         initComponents();
+        txtBienvenido.setText("!Bienvenido " + nombre_admin + "!");
     }
 
     /**
@@ -110,7 +111,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         btnSBuscar = new javax.swing.JButton();
         Statitics = new javax.swing.JDialog();
         jLabel5 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        txtBienvenido = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         btnVerDetalles = new javax.swing.JButton();
         jLabel16 = new javax.swing.JLabel();
@@ -800,9 +801,9 @@ public class AdminDashboard extends javax.swing.JFrame {
         jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel5.setText("Estadísticas");
 
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel4.setText("¡Bienvenido ");
+        txtBienvenido.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        txtBienvenido.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        txtBienvenido.setText("¡Bienvenido ");
 
         jLabel1.setText("Status del Administrador");
 
@@ -905,7 +906,7 @@ public class AdminDashboard extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtBienvenido, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel1)
                                 .addGap(0, 0, Short.MAX_VALUE))
@@ -931,7 +932,7 @@ public class AdminDashboard extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(18, 18, 18)
-                .addComponent(jLabel4)
+                .addComponent(txtBienvenido)
                 .addGap(5, 5, 5)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(3, 3, 3)
@@ -951,9 +952,8 @@ public class AdminDashboard extends javax.swing.JFrame {
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(btnVerDetalles)
-                        .addComponent(jLabel16))
+                    .addComponent(btnVerDetalles)
+                    .addComponent(jLabel16)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -1060,7 +1060,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new AdminDashboard().setVisible(true);
+                new AdminDashboard(null).setVisible(true);
             }
         });
     }
@@ -1129,7 +1129,6 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel33;
     private javax.swing.JLabel jLabel34;
     private javax.swing.JLabel jLabel35;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -1162,6 +1161,7 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JMenuItem opcionModificarUsuarios;
     private javax.swing.JMenu subMenuApariencia;
     private javax.swing.JTable tablaHorarios;
+    private javax.swing.JLabel txtBienvenido;
     private javax.swing.JTextField txtLBuscar;
     private javax.swing.JTextField txtLCapacity;
     private javax.swing.JPasswordField txtLLocation;

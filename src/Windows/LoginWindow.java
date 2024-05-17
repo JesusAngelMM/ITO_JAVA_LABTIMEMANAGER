@@ -1,20 +1,42 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package Windows;
 
-/**
- *
- * @author Diego Garcia
- */
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.JOptionPane;
+
 public class LoginWindow extends javax.swing.JFrame {
 
-    /**
-     * Creates new form LoginWindow
-     */
+    public static final String URL = "jdbc:mysql://localhost:3306/labtimemanager?useTimeZone=true&serverTimezone=UTC&autoReconnect=true&useSSL=false"; // Ajustes para la URL
+    public static final String usuario = "root";
+    public static final String contrasena = "password";
+    PreparedStatement ps;
+    ResultSet rs;
+    
     public LoginWindow() {
         initComponents();
+    }
+    
+    private String validateLogin(String username, String password) {
+        String role = null;
+        try {
+            Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
+            String query = "SELECT role FROM USER WHERE username = ? AND password = ?";
+            ps = conn.prepareStatement(query);
+            ps.setString(1, username);
+            ps.setString(2, password);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                role = rs.getString("role"); // Obtener el rol del usuario
+            }
+
+            conn.close();
+        } catch (Exception e) {
+            System.err.println("Error de conexión: " + e.getMessage());
+        }
+        return role;
     }
 
     /**
@@ -44,6 +66,11 @@ public class LoginWindow extends javax.swing.JFrame {
         lblContrasena.setText("Contraseña:");
 
         btnIniciarSesion.setText("Iniciar sesión");
+        btnIniciarSesion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnIniciarSesionActionPerformed(evt);
+            }
+        });
 
         lblUsuario.setText("Usuario:");
 
@@ -54,6 +81,11 @@ public class LoginWindow extends javax.swing.JFrame {
         });
 
         btnCancelar.setText("Cancelar");
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/laboratory.png"))); // NOI18N
 
@@ -117,6 +149,28 @@ public class LoginWindow extends javax.swing.JFrame {
     private void txtUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsuarioActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtUsuarioActionPerformed
+
+    private void btnIniciarSesionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIniciarSesionActionPerformed
+        String username = txtUsuario.getText();
+        String password = new String(txtContrasena.getPassword());
+        String role = validateLogin(username, password);
+
+        if (role != null) {
+            JOptionPane.showMessageDialog(this, "Inicio de sesión exitoso");
+            if (role.equals("admin")) {
+                new AdminDashboard(username).setVisible(true); // Abrir ventana de administrador
+            } else {
+                new UserDashboard(username).setVisible(true); // Abrir ventana de usuario normal
+            }
+            this.dispose(); // Cerrar la ventana de login
+        } else {
+            JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos", "Error de autenticación", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnIniciarSesionActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_btnCancelarActionPerformed
 
     /**
      * @param args the command line arguments
