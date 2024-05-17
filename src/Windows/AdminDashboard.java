@@ -1,13 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package Windows;
 
-/**
- *
- * @author Diego Garcia
- */
 public class AdminDashboard extends javax.swing.JFrame {
 
     String nombre_admin;
@@ -117,12 +109,12 @@ public class AdminDashboard extends javax.swing.JFrame {
         jLabel16 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         jLabel6 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
+        txtName = new javax.swing.JLabel();
+        txtMail = new javax.swing.JLabel();
+        txtRole = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaHorarios = new javax.swing.JTable();
-        jLabel9 = new javax.swing.JLabel();
+        txtApartment = new javax.swing.JLabel();
         menuBarraUsuario = new javax.swing.JMenuBar();
         menuSalir = new javax.swing.JMenu();
         opcionMenuCerrarSesion = new javax.swing.JMenuItem();
@@ -813,11 +805,11 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/usuario_admin.png"))); // NOI18N
 
-        jLabel2.setText("Nombre: ");
+        txtName.setText("Nombre: ");
 
-        jLabel7.setText("Correo: ");
+        txtMail.setText("Correo: ");
 
-        jLabel8.setText("Rol: ");
+        txtRole.setText("Rol: ");
 
         tablaHorarios.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -832,7 +824,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(tablaHorarios);
 
-        jLabel9.setText("Departamento: ");
+        txtApartment.setText("Departamento: ");
 
         menuSalir.setText("Salir");
 
@@ -921,10 +913,10 @@ public class AdminDashboard extends javax.swing.JFrame {
                                         .addComponent(jLabel6)
                                         .addGap(147, 147, 147)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)))
+                                            .addComponent(txtName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(txtMail, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(txtRole, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(txtApartment, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)))
                                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 670, javax.swing.GroupLayout.PREFERRED_SIZE))))))
                 .addContainerGap())
         );
@@ -941,13 +933,13 @@ public class AdminDashboard extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel6)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2)
+                        .addComponent(txtName)
                         .addGap(18, 18, 18)
-                        .addComponent(jLabel7)
+                        .addComponent(txtMail)
                         .addGap(18, 18, 18)
-                        .addComponent(jLabel8)
+                        .addComponent(txtRole)
                         .addGap(18, 18, 18)
-                        .addComponent(jLabel9)))
+                        .addComponent(txtApartment)))
                 .addGap(45, 45, 45)
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -1111,7 +1103,6 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
@@ -1131,9 +1122,6 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel35;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -1161,6 +1149,7 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JMenuItem opcionModificarUsuarios;
     private javax.swing.JMenu subMenuApariencia;
     private javax.swing.JTable tablaHorarios;
+    private javax.swing.JLabel txtApartment;
     private javax.swing.JLabel txtBienvenido;
     private javax.swing.JTextField txtLBuscar;
     private javax.swing.JTextField txtLCapacity;
@@ -1172,6 +1161,9 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JTextField txtMName;
     private javax.swing.JPasswordField txtMQuantity;
     private javax.swing.JTextField txtMUId;
+    private javax.swing.JLabel txtMail;
+    private javax.swing.JLabel txtName;
+    private javax.swing.JLabel txtRole;
     private javax.swing.JTextField txtSBuscar;
     private javax.swing.JTextField txtUBuscar;
     private javax.swing.JTextField txtUId;
