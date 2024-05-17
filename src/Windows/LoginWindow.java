@@ -159,7 +159,7 @@ public class LoginWindow extends javax.swing.JFrame {
 
         if (role != null) {
             JOptionPane.showMessageDialog(this, "Inicio de sesión exitoso");
-            if (role.equals("admin")) {
+            if (role.equals("administrador")) {
                 new AdminDashboard(username).setVisible(true); // Abrir ventana de administrador
             } else {
                 new UserDashboard(username).setVisible(true); // Abrir ventana de usuario normal
