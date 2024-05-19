@@ -344,20 +344,20 @@ public class UserDashboard extends javax.swing.JFrame {
         txtPurpose = new javax.swing.JTextArea();
         cboLaboratorios = new javax.swing.JComboBox<>();
         lblDate = new javax.swing.JLabel();
-        panelUserDashBoard = new javax.swing.JPanel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        btnEliminarReservación = new javax.swing.JButton();
-        jLabel17 = new javax.swing.JLabel();
+        panelBienvenida = new javax.swing.JPanel();
         txtBievenido = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        jSeparator1 = new javax.swing.JSeparator();
+        jPanel2 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        panelTabla = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaHorarios = new javax.swing.JTable();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
+        panelOpciones = new javax.swing.JPanel();
+        btnEliminarReservación = new javax.swing.JButton();
         menuBarraUsuario = new javax.swing.JMenuBar();
         menuSalir = new javax.swing.JMenu();
         opcionMenuCerrarSesion = new javax.swing.JMenuItem();
@@ -370,6 +370,8 @@ public class UserDashboard extends javax.swing.JFrame {
         opcionAgregarReservacion = new javax.swing.JMenuItem();
         menuAyuda = new javax.swing.JMenu();
         opcionAyuda = new javax.swing.JMenuItem();
+
+        Reservation.setResizable(false);
 
         btnAgregarMaterial.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/aceptar.png"))); // NOI18N
         btnAgregarMaterial.addActionListener(new java.awt.event.ActionListener() {
@@ -548,11 +550,12 @@ public class UserDashboard extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(calendario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(cboHorasI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cboHorasF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel13)
-                            .addComponent(lblDate, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblDate, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(cboHorasI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cboHorasF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel13)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel19)
                         .addGap(12, 12, 12)
@@ -598,30 +601,33 @@ public class UserDashboard extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel7.setText("Rol: ");
-
-        jLabel8.setText("Departamento: ");
-
-        btnEliminarReservación.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/papelera.png"))); // NOI18N
-        btnEliminarReservación.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnEliminarReservaciónActionPerformed(evt);
-            }
-        });
-
-        jLabel17.setText("Eliminar");
-
         txtBievenido.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         txtBievenido.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         txtBievenido.setText("¡Bienvenido");
+        panelBienvenida.add(txtBievenido);
+
+        jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.Y_AXIS));
+
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/usuario_normal.png"))); // NOI18N
+        jPanel2.add(jLabel3);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel1.setText("Estatus del usuario");
+        jPanel2.add(jLabel1);
 
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/usuario_normal.png"))); // NOI18N
+        jLabel2.setText("Nombre: ");
+        jPanel2.add(jLabel2);
 
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel5.setText("Reservaciones");
+        jLabel7.setText("Rol: ");
+        jPanel2.add(jLabel7);
+
+        jLabel6.setText("Correo: ");
+        jPanel2.add(jLabel6);
+
+        jLabel8.setText("Departamento: ");
+        jPanel2.add(jLabel8);
+
+        panelTabla.setLayout(new java.awt.BorderLayout());
 
         tablaHorarios.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -635,83 +641,17 @@ public class UserDashboard extends javax.swing.JFrame {
         configurarTablaYAgregarListener();
         jScrollPane1.setViewportView(tablaHorarios);
 
-        jLabel2.setText("Nombre: ");
+        panelTabla.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
-        jLabel6.setText("Correo: ");
+        panelOpciones.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        javax.swing.GroupLayout panelUserDashBoardLayout = new javax.swing.GroupLayout(panelUserDashBoard);
-        panelUserDashBoard.setLayout(panelUserDashBoardLayout);
-        panelUserDashBoardLayout.setHorizontalGroup(
-            panelUserDashBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelUserDashBoardLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelUserDashBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtBievenido, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelUserDashBoardLayout.createSequentialGroup()
-                        .addGroup(panelUserDashBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(panelUserDashBoardLayout.createSequentialGroup()
-                                .addGroup(panelUserDashBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(panelUserDashBoardLayout.createSequentialGroup()
-                                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(95, 95, 95)
-                                        .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(panelUserDashBoardLayout.createSequentialGroup()
-                                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 140, Short.MAX_VALUE)
-                                .addComponent(jLabel17)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btnEliminarReservación))
-                            .addGroup(panelUserDashBoardLayout.createSequentialGroup()
-                                .addGap(11, 11, 11)
-                                .addGroup(panelUserDashBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel3)
-                                    .addGroup(panelUserDashBoardLayout.createSequentialGroup()
-                                        .addGap(13, 13, 13)
-                                        .addComponent(jLabel1)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
-                                .addGroup(panelUserDashBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 594, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelUserDashBoardLayout.createSequentialGroup()
-                                        .addComponent(jLabel5)
-                                        .addGap(244, 244, 244)))))
-                        .addGap(12, 12, 12))
-                    .addGroup(panelUserDashBoardLayout.createSequentialGroup()
-                        .addGap(46, 46, 46)
-                        .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 691, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        panelUserDashBoardLayout.setVerticalGroup(
-            panelUserDashBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelUserDashBoardLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(txtBievenido)
-                .addGap(5, 5, 5)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(panelUserDashBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel5))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(panelUserDashBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel3)
-                    .addGroup(panelUserDashBoardLayout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addGroup(panelUserDashBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel7))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(panelUserDashBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6)
-                            .addGroup(panelUserDashBoardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel8)
-                                .addComponent(jLabel17))
-                            .addComponent(btnEliminarReservación))))
-                .addContainerGap(14, Short.MAX_VALUE))
-        );
+        btnEliminarReservación.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/papelera.png"))); // NOI18N
+        btnEliminarReservación.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarReservaciónActionPerformed(evt);
+            }
+        });
+        panelOpciones.add(btnEliminarReservación, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 30, 110, -1));
 
         menuSalir.setText("Salir");
 
@@ -774,13 +714,29 @@ public class UserDashboard extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelUserDashBoard, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelBienvenida, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(panelOpciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(panelTabla, javax.swing.GroupLayout.DEFAULT_SIZE, 900, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(panelUserDashBoard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 6, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(panelBienvenida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(panelOpciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(85, 85, 85))
+                    .addComponent(panelTabla, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
         );
 
         pack();
@@ -1057,20 +1013,18 @@ public class UserDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel lblDate;
     private javax.swing.JLabel lblSelectHora;
     private javax.swing.JLabel lblSelectLaboratorio;
@@ -1086,7 +1040,9 @@ public class UserDashboard extends javax.swing.JFrame {
     private javax.swing.JMenuItem opcionMenuCerrarSesion;
     private javax.swing.JMenuItem opcionMenuSalir;
     private javax.swing.JCheckBoxMenuItem opcionOscuro;
-    private javax.swing.JPanel panelUserDashBoard;
+    private javax.swing.JPanel panelBienvenida;
+    private javax.swing.JPanel panelOpciones;
+    private javax.swing.JPanel panelTabla;
     private javax.swing.JMenu subMenuApariencia;
     private javax.swing.JTable tablaHorarios;
     private javax.swing.JTable tablaMateriales;
