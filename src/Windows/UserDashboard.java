@@ -26,7 +26,7 @@ public class UserDashboard extends javax.swing.JFrame {
     public UserDashboard(String nombre_usuario) {
         this.nombre_usuario = nombre_usuario;
         initComponents();
-        txtBievenido.setText("!Bienvenido " + nombre_usuario + "!");
+        txtBievenida.setText("!Bienvenido " + nombre_usuario + "!");
         mostrarEstatus();
         mostrarReservaciones();
         rellenarComboBoxMateriales();
@@ -279,7 +279,6 @@ public class UserDashboard extends javax.swing.JFrame {
         return existe;
     }
 
-
     private boolean existeReservacion(String date, String startTime, String endTime, int idLab) throws SQLException, ClassNotFoundException {
         boolean existe = false;
         Connection conn = null;
@@ -310,6 +309,42 @@ public class UserDashboard extends javax.swing.JFrame {
 
         return existe;
     }
+    
+    private void actualizarTablaHorariosSemana(String selectedDate) {
+        DefaultTableModel modelo = (DefaultTableModel) tablaHorariosSemana.getModel();
+        modelo.setRowCount(0); // Limpiar la tabla antes de agregar nuevas filas
+
+        String[] horas = { "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00" };
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
+            for (int i = 0; i < horas.length - 1; i++) {
+                String horaInicio = horas[i];
+                String horaFin = horas[i + 1];
+                String query = "SELECT COUNT(*) FROM RESERVATION R " +
+                               "JOIN SCHEDULE S ON R.id_schedule = S.id_schedule " +
+                               "WHERE S.date = ? AND S.start_time = ? AND S.end_time = ?";
+                ps = conn.prepareStatement(query);
+                ps.setString(1, selectedDate);
+                ps.setString(2, horaInicio);
+                ps.setString(3, horaFin);
+                rs = ps.executeQuery();
+
+                String estatus = "Libre";
+                if (rs.next() && rs.getInt(1) > 0) {
+                    estatus = "Ocupado";
+                }
+
+                modelo.addRow(new Object[]{horaInicio, horaFin, estatus});
+            }
+            conn.close();
+        } catch (Exception e) {
+            System.err.println("Error al actualizar los horarios: " + e.getMessage());
+        }
+    }
+    
+    
+
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -344,9 +379,16 @@ public class UserDashboard extends javax.swing.JFrame {
         txtPurpose = new javax.swing.JTextArea();
         cboLaboratorios = new javax.swing.JComboBox<>();
         lblDate = new javax.swing.JLabel();
+        Schedules = new javax.swing.JDialog();
+        panelFecha = new javax.swing.JPanel();
+        calendarioHorarios = new com.toedter.calendar.JCalendar();
+        panelHorario = new javax.swing.JPanel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        tablaHorariosSemana = new javax.swing.JTable();
+        panelPadre = new javax.swing.JPanel();
         panelBienvenida = new javax.swing.JPanel();
-        txtBievenido = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
+        txtBievenida = new javax.swing.JLabel();
+        panelEstatus = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -356,7 +398,6 @@ public class UserDashboard extends javax.swing.JFrame {
         panelTabla = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaHorarios = new javax.swing.JTable();
-        panelOpciones = new javax.swing.JPanel();
         btnEliminarReservación = new javax.swing.JButton();
         menuBarraUsuario = new javax.swing.JMenuBar();
         menuSalir = new javax.swing.JMenu();
@@ -365,9 +406,10 @@ public class UserDashboard extends javax.swing.JFrame {
         menuPreferencias = new javax.swing.JMenu();
         subMenuApariencia = new javax.swing.JMenu();
         opcionClaro = new javax.swing.JRadioButtonMenuItem();
-        opcionOscuro = new javax.swing.JCheckBoxMenuItem();
+        opcionOscuro = new javax.swing.JRadioButtonMenuItem();
         menuOpciones = new javax.swing.JMenu();
         opcionAgregarReservacion = new javax.swing.JMenuItem();
+        opcionVerReservaciones = new javax.swing.JMenuItem();
         menuAyuda = new javax.swing.JMenu();
         opcionAyuda = new javax.swing.JMenuItem();
 
@@ -599,35 +641,102 @@ public class UserDashboard extends javax.swing.JFrame {
                 .addGap(0, 6, Short.MAX_VALUE))
         );
 
+        Schedules.setResizable(false);
+
+        panelFecha.setLayout(new javax.swing.BoxLayout(panelFecha, javax.swing.BoxLayout.LINE_AXIS));
+
+        calendarioHorarios.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                calendarioHorariosPropertyChange(evt);
+            }
+        });
+        panelFecha.add(calendarioHorarios);
+
+        panelHorario.setLayout(new javax.swing.BoxLayout(panelHorario, javax.swing.BoxLayout.LINE_AXIS));
+
+        tablaHorariosSemana.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Hora de inicio", "Hora de finalización", "Estatus"
+            }
+        ));
+        jScrollPane4.setViewportView(tablaHorariosSemana);
+
+        javax.swing.GroupLayout SchedulesLayout = new javax.swing.GroupLayout(Schedules.getContentPane());
+        Schedules.getContentPane().setLayout(SchedulesLayout);
+        SchedulesLayout.setHorizontalGroup(
+            SchedulesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(SchedulesLayout.createSequentialGroup()
+                .addComponent(panelFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelHorario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        SchedulesLayout.setVerticalGroup(
+            SchedulesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(panelFecha, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelHorario, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, SchedulesLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        txtBievenido.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        txtBievenido.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        txtBievenido.setText("¡Bienvenido");
-        panelBienvenida.add(txtBievenido);
+        panelPadre.setLayout(new javax.swing.BoxLayout(panelPadre, javax.swing.BoxLayout.Y_AXIS));
 
-        jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.Y_AXIS));
+        txtBievenida.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        txtBievenida.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        txtBievenida.setText("¡Bienvenido");
+        panelBienvenida.add(txtBievenida);
+
+        panelPadre.add(panelBienvenida);
+
+        panelEstatus.setLayout(new java.awt.GridBagLayout());
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/usuario_normal.png"))); // NOI18N
-        jPanel2.add(jLabel3);
+        panelEstatus.add(jLabel3, new java.awt.GridBagConstraints());
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel1.setText("Estatus del usuario");
-        jPanel2.add(jLabel1);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        panelEstatus.add(jLabel1, gridBagConstraints);
 
         jLabel2.setText("Nombre: ");
-        jPanel2.add(jLabel2);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        panelEstatus.add(jLabel2, gridBagConstraints);
 
         jLabel7.setText("Rol: ");
-        jPanel2.add(jLabel7);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        panelEstatus.add(jLabel7, gridBagConstraints);
 
         jLabel6.setText("Correo: ");
-        jPanel2.add(jLabel6);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        panelEstatus.add(jLabel6, gridBagConstraints);
 
         jLabel8.setText("Departamento: ");
-        jPanel2.add(jLabel8);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        panelEstatus.add(jLabel8, gridBagConstraints);
 
-        panelTabla.setLayout(new java.awt.BorderLayout());
+        panelPadre.add(panelEstatus);
+
+        panelTabla.setLayout(new java.awt.BorderLayout(1, 1));
 
         tablaHorarios.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -643,15 +752,15 @@ public class UserDashboard extends javax.swing.JFrame {
 
         panelTabla.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
-        panelOpciones.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
         btnEliminarReservación.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/papelera.png"))); // NOI18N
         btnEliminarReservación.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnEliminarReservaciónActionPerformed(evt);
             }
         });
-        panelOpciones.add(btnEliminarReservación, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 30, 110, -1));
+        panelTabla.add(btnEliminarReservación, java.awt.BorderLayout.PAGE_END);
+
+        panelPadre.add(panelTabla);
 
         menuSalir.setText("Salir");
 
@@ -699,6 +808,14 @@ public class UserDashboard extends javax.swing.JFrame {
         });
         menuOpciones.add(opcionAgregarReservacion);
 
+        opcionVerReservaciones.setText("Ver Reservaciones");
+        opcionVerReservaciones.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                opcionVerReservacionesActionPerformed(evt);
+            }
+        });
+        menuOpciones.add(opcionVerReservaciones);
+
         menuBarraUsuario.add(menuOpciones);
 
         menuAyuda.setText("Ayuda");
@@ -714,29 +831,11 @@ public class UserDashboard extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelBienvenida, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(panelOpciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
-                .addComponent(panelTabla, javax.swing.GroupLayout.DEFAULT_SIZE, 900, Short.MAX_VALUE))
+            .addComponent(panelPadre, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1000, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panelBienvenida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(panelOpciones, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(85, 85, 85))
-                    .addComponent(panelTabla, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+            .addComponent(panelPadre, javax.swing.GroupLayout.DEFAULT_SIZE, 537, Short.MAX_VALUE)
         );
 
         pack();
@@ -954,6 +1053,26 @@ public class UserDashboard extends javax.swing.JFrame {
             }
         });
     }//GEN-LAST:event_calendarioPropertyChange
+
+    private void opcionVerReservacionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionVerReservacionesActionPerformed
+        Schedules.setSize(860,260);
+        Schedules.setVisible(true);
+        Schedules.setLocationRelativeTo(null);
+    }//GEN-LAST:event_opcionVerReservacionesActionPerformed
+
+    private void calendarioHorariosPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_calendarioHorariosPropertyChange
+        calendarioHorarios.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                calendarioHorariosPropertyChange(evt);
+            }
+        });
+
+        if ("calendar".equals(evt.getPropertyName())) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String selectedDate = sdf.format(calendarioHorarios.getDate());
+            actualizarTablaHorariosSemana(selectedDate);
+        }
+    }//GEN-LAST:event_calendarioHorariosPropertyChange
     
     /**
      * @param args the command line arguments
@@ -995,6 +1114,7 @@ public class UserDashboard extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JDialog Reservation;
+    private javax.swing.JDialog Schedules;
     private javax.swing.JButton btnAgregarMaterial;
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnEliminarElemento;
@@ -1002,6 +1122,7 @@ public class UserDashboard extends javax.swing.JFrame {
     private javax.swing.JButton btnExportarPDF;
     private javax.swing.JButton btnHacerReservacion;
     private com.toedter.calendar.JCalendar calendario;
+    private com.toedter.calendar.JCalendar calendarioHorarios;
     private javax.swing.JComboBox<String> cboHorasF;
     private javax.swing.JComboBox<String> cboHorasI;
     private javax.swing.JComboBox<String> cboLaboratorios;
@@ -1021,10 +1142,10 @@ public class UserDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JLabel lblDate;
     private javax.swing.JLabel lblSelectHora;
     private javax.swing.JLabel lblSelectLaboratorio;
@@ -1039,14 +1160,19 @@ public class UserDashboard extends javax.swing.JFrame {
     private javax.swing.JRadioButtonMenuItem opcionClaro;
     private javax.swing.JMenuItem opcionMenuCerrarSesion;
     private javax.swing.JMenuItem opcionMenuSalir;
-    private javax.swing.JCheckBoxMenuItem opcionOscuro;
+    private javax.swing.JRadioButtonMenuItem opcionOscuro;
+    private javax.swing.JMenuItem opcionVerReservaciones;
     private javax.swing.JPanel panelBienvenida;
-    private javax.swing.JPanel panelOpciones;
+    private javax.swing.JPanel panelEstatus;
+    private javax.swing.JPanel panelFecha;
+    private javax.swing.JPanel panelHorario;
+    private javax.swing.JPanel panelPadre;
     private javax.swing.JPanel panelTabla;
     private javax.swing.JMenu subMenuApariencia;
     private javax.swing.JTable tablaHorarios;
+    private javax.swing.JTable tablaHorariosSemana;
     private javax.swing.JTable tablaMateriales;
-    private javax.swing.JLabel txtBievenido;
+    private javax.swing.JLabel txtBievenida;
     private javax.swing.JTextArea txtPurpose;
     // End of variables declaration//GEN-END:variables
 }

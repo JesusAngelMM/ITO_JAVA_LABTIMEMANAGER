@@ -145,9 +145,11 @@ public class AdminDashboard extends javax.swing.JFrame {
         txtSBuscar = new javax.swing.JTextField();
         btnSBuscar = new javax.swing.JButton();
         Statitics = new javax.swing.JDialog();
+        jPanel5 = new javax.swing.JPanel();
+        panelBienvenida = new javax.swing.JPanel();
         txtBienvenido = new javax.swing.JLabel();
+        panelEstatus = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jSeparator1 = new javax.swing.JSeparator();
         jLabel6 = new javax.swing.JLabel();
         txtName = new javax.swing.JLabel();
         txtMail = new javax.swing.JLabel();
@@ -825,24 +827,44 @@ public class AdminDashboard extends javax.swing.JFrame {
             .addGap(0, 300, Short.MAX_VALUE)
         );
 
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Modificar Usuarios");
 
         txtBienvenido.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         txtBienvenido.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         txtBienvenido.setText("¡Bienvenido ");
+        panelBienvenida.add(txtBienvenido);
 
-        jLabel1.setText("Status del Administrador");
+        panelEstatus.setLayout(new javax.swing.BoxLayout(panelEstatus, javax.swing.BoxLayout.Y_AXIS));
+
+        jLabel1.setText("Estatus del Administrador");
+        panelEstatus.add(jLabel1);
 
         jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/usuario_admin.png"))); // NOI18N
+        panelEstatus.add(jLabel6);
 
         txtName.setText("Nombre: ");
+        panelEstatus.add(txtName);
 
         txtMail.setText("Correo: ");
+        panelEstatus.add(txtMail);
 
         txtRole.setText("Rol: ");
+        panelEstatus.add(txtRole);
 
         txtApartment.setText("Departamento: ");
+        panelEstatus.add(txtApartment);
 
         menuSalir.setText("Salir");
 
@@ -908,51 +930,20 @@ public class AdminDashboard extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(52, 52, 52)
-                        .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 691, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 32, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtBienvenido, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(jLabel6)
-                                .addGap(147, 147, 147)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(txtName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(txtMail, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(txtRole, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(txtApartment, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE))
-                                .addGap(165, 165, 165)))))
-                .addContainerGap())
+                        .addComponent(panelEstatus, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 836, Short.MAX_VALUE))
+                    .addComponent(panelBienvenida, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addComponent(txtBienvenido)
-                .addGap(5, 5, 5)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(3, 3, 3)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel6)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(txtName)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtMail)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtRole)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtApartment)))
-                .addContainerGap(235, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(panelBienvenida, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelEstatus, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(45, Short.MAX_VALUE))
         );
 
         pack();
@@ -1131,9 +1122,9 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JRadioButtonMenuItem jRadioButtonMenuItem1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTable jTable1;
     private javax.swing.JLabel lblSelectHora;
     private javax.swing.JLabel lblSelectLaboratorio;
@@ -1152,6 +1143,8 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JMenuItem opcionModificarLaboratorios;
     private javax.swing.JMenuItem opcionModificarMaterial;
     private javax.swing.JMenuItem opcionModificarUsuarios;
+    private javax.swing.JPanel panelBienvenida;
+    private javax.swing.JPanel panelEstatus;
     private javax.swing.JMenu subMenuApariencia;
     private javax.swing.JLabel txtApartment;
     private javax.swing.JLabel txtBienvenido;
