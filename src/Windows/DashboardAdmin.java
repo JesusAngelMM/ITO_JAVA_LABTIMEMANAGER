@@ -29,7 +29,8 @@ public class DashboardAdmin extends javax.swing.JFrame {
         txtBievenida.setText("!Bienvenido " + nombre_usuario + "!");
         mostrarEstatus();
         rellenarComboBoxMateriales();
-        agregarListenerTablaU();
+        agregarListenerTablaU();  // Listener para la tabla de usuarios
+        agregarListenerTablaM();  // Listener para la tabla de materiales
     }
 
     private void mostrarEstatus() {
@@ -321,11 +322,82 @@ public class DashboardAdmin extends javax.swing.JFrame {
         cboUDepartment.setSelectedIndex(0);
     }
 
+    //DIALOGO MATERIALES
+    private void cargarMaterialesEnTabla() {
+        DefaultTableModel modelo = (DefaultTableModel) tablaM.getModel();
+        modelo.setRowCount(0); // Limpiar la tabla antes de agregar nuevas filas
 
+        String query = "SELECT id_material, name, quantity, id_lab FROM MATERIAL";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
+            ps = conn.prepareStatement(query);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("id_material");
+                String name = rs.getString("name");
+                int quantity = rs.getInt("quantity");
+                int idLab = rs.getInt("id_lab");
+
+                modelo.addRow(new Object[]{id, name, quantity, idLab});
+            }
+            conn.close();
+        } catch (Exception e) {
+            System.err.println("Error al cargar los materiales: " + e.getMessage());
+        }
+    }
+
+    private void agregarListenerTablaM() {
+        tablaM.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int selectedRow = tablaM.getSelectedRow();
+                if (selectedRow != -1) {
+                    DefaultTableModel model = (DefaultTableModel) tablaM.getModel();
+
+                    int id = (int) model.getValueAt(selectedRow, 0);
+                    String name = model.getValueAt(selectedRow, 1).toString();
+                    int quantity = (int) model.getValueAt(selectedRow, 2);
+                    int idLab = (int) model.getValueAt(selectedRow, 3);
+
+                    txtMId.setText(String.valueOf(id));
+                    txtMName.setText(name);
+                    txtMQuantity.setText(String.valueOf(quantity));
+                    txtMIdLab.setText(String.valueOf(idLab));
+                }
+            }
+        });
+    }
+
+    private void limpiarCamposMaterial() {
+        txtMId.setText("");
+        txtMName.setText("");
+        txtMQuantity.setText("");
+        txtMIdLab.setText("");
+    }
     
+    // Método para verificar si un id_lab existe en la tabla LABORATORY
+    private boolean idLabExiste(int idLab) {
+        boolean existe = false;
+        String query = "SELECT COUNT(*) FROM LABORATORY WHERE id_lab = ?";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, idLab);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                existe = rs.getInt(1) > 0;
+            }
+            conn.close();
+        } catch (Exception e) {
+            System.err.println("Error al verificar el id_lab: " + e.getMessage());
+        }
+        return existe;
+    }
     
-
-
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -382,7 +454,7 @@ public class DashboardAdmin extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaU = new javax.swing.JTable();
         ModifyLabs = new javax.swing.JDialog();
-        jPanel3 = new javax.swing.JPanel();
+        panelModifyLabs = new javax.swing.JPanel();
         txtLCapacity = new javax.swing.JTextField();
         jLabel22 = new javax.swing.JLabel();
         jLabel23 = new javax.swing.JLabel();
@@ -395,28 +467,30 @@ public class DashboardAdmin extends javax.swing.JFrame {
         txtLUId = new javax.swing.JTextField();
         txtLName = new javax.swing.JTextField();
         btnLBuscar = new javax.swing.JButton();
-        txtLBuscar = new javax.swing.JTextField();
         jLabel26 = new javax.swing.JLabel();
         jLabel27 = new javax.swing.JLabel();
         txtLLocation = new javax.swing.JPasswordField();
         cboLType = new javax.swing.JComboBox<>();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
         ModifyMaterials = new javax.swing.JDialog();
-        jPanel4 = new javax.swing.JPanel();
+        panelModifyMaterials = new javax.swing.JPanel();
         txtMIdLab = new javax.swing.JTextField();
         jLabel28 = new javax.swing.JLabel();
         jLabel29 = new javax.swing.JLabel();
         btnMInsertar = new javax.swing.JButton();
         jLabel30 = new javax.swing.JLabel();
         btnMModificar = new javax.swing.JButton();
-        btnMEliminar = new javax.swing.JButton();
-        btnMLimpiar = new javax.swing.JButton();
-        txtMUId = new javax.swing.JTextField();
         txtMName = new javax.swing.JTextField();
-        btnMBuscar = new javax.swing.JButton();
-        txtMBuscar = new javax.swing.JTextField();
         jLabel31 = new javax.swing.JLabel();
         jLabel32 = new javax.swing.JLabel();
-        txtMQuantity = new javax.swing.JPasswordField();
+        txtMId = new javax.swing.JTextField();
+        btnMBuscar = new javax.swing.JButton();
+        btnMEliminar = new javax.swing.JButton();
+        btnMLimpiar = new javax.swing.JButton();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        tablaM = new javax.swing.JTable();
+        txtMQuantity = new javax.swing.JTextField();
         ModifySchudele = new javax.swing.JDialog();
         jLabel33 = new javax.swing.JLabel();
         btnCancelar1 = new javax.swing.JButton();
@@ -936,118 +1010,140 @@ public class DashboardAdmin extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createSequentialGroup()
-                        .addGap(29, 29, 29)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel22)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
-                                .addComponent(txtLName, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                .addComponent(jLabel24)
-                                                .addComponent(jLabel25))
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 72, Short.MAX_VALUE)
-                                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                .addComponent(txtLCapacity, javax.swing.GroupLayout.Alignment.TRAILING)
-                                                .addComponent(cboLType, javax.swing.GroupLayout.Alignment.TRAILING, 0, 230, Short.MAX_VALUE)))
-                                        .addGroup(jPanel3Layout.createSequentialGroup()
-                                            .addComponent(btnLInsertar)
+        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "id", "Nombre", "Ubicación", "Capacidad", "Tipo"
+            }
+        ));
+        jScrollPane7.setViewportView(jTable2);
+
+        javax.swing.GroupLayout panelModifyLabsLayout = new javax.swing.GroupLayout(panelModifyLabs);
+        panelModifyLabs.setLayout(panelModifyLabsLayout);
+        panelModifyLabsLayout.setHorizontalGroup(
+            panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelModifyLabsLayout.createSequentialGroup()
+                .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnLEliminar)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnLLimpiar))
+                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                                .addGap(29, 29, 29)
+                                .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel24)
+                                            .addComponent(jLabel25))
+                                        .addGap(72, 72, 72)
+                                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(txtLCapacity, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(cboLType, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelModifyLabsLayout.createSequentialGroup()
+                                            .addComponent(jLabel22)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(txtLName, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelModifyLabsLayout.createSequentialGroup()
+                                            .addComponent(jLabel23)
                                             .addGap(18, 18, 18)
-                                            .addComponent(btnLModificar)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
-                                            .addComponent(btnLEliminar)
-                                            .addGap(18, 18, 18)
-                                            .addComponent(btnLLimpiar)))
-                                    .addGroup(jPanel3Layout.createSequentialGroup()
-                                        .addComponent(jLabel23)
+                                            .addComponent(txtLLocation, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                                        .addComponent(btnLInsertar)
                                         .addGap(18, 18, 18)
-                                        .addComponent(txtLLocation, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(0, 0, Short.MAX_VALUE))))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
+                                        .addComponent(btnLModificar))))
+                            .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                                .addGap(187, 187, 187)
+                                .addComponent(jLabel26)))
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelModifyLabsLayout.createSequentialGroup()
                         .addGap(66, 66, 66)
                         .addComponent(jLabel27)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(txtLBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(btnLBuscar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(txtLUId))))
-                .addGap(19, 19, 19))
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(187, 187, 187)
-                .addComponent(jLabel26)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnLBuscar)
-                            .addComponent(txtLBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(txtLUId, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtLUId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(btnLBuscar)))
+                .addGap(19, 19, 19))
+        );
+        panelModifyLabsLayout.setVerticalGroup(
+            panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnLBuscar)
+                            .addComponent(txtLUId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
                         .addGap(37, 37, 37)
                         .addComponent(jLabel27)))
-                .addGap(12, 12, 12)
-                .addComponent(jLabel26)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel22)
-                    .addComponent(txtLName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel23)
-                    .addComponent(txtLLocation, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(21, 21, 21)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtLCapacity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel24))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel25)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 83, Short.MAX_VALUE)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnLInsertar)
-                            .addComponent(btnLModificar)
+                .addGap(46, 46, 46)
+                .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                        .addComponent(jLabel26)
+                        .addGap(18, 18, 18)
+                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel22)
+                            .addComponent(txtLName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel23)
+                            .addComponent(txtLLocation, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(21, 21, 21)
+                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtLCapacity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel24))
+                        .addGap(18, 18, 18)
+                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel25)
+                            .addComponent(cboLType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnLEliminar)
-                            .addComponent(btnLLimpiar))
-                        .addGap(18, 18, 18))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(cboLType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(btnLLimpiar)))
+                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnLInsertar)
+                            .addComponent(btnLModificar))))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout ModifyLabsLayout = new javax.swing.GroupLayout(ModifyLabs.getContentPane());
         ModifyLabs.getContentPane().setLayout(ModifyLabsLayout);
         ModifyLabsLayout.setHorizontalGroup(
             ModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(ModifyLabsLayout.createSequentialGroup()
+                .addComponent(panelModifyLabs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         ModifyLabsLayout.setVerticalGroup(
             ModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelModifyLabs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         ModifyMaterials.setTitle("Modificar Materiales");
 
+        panelModifyMaterials.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        panelModifyMaterials.add(txtMIdLab, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 194, 230, -1));
+
         jLabel28.setText("Nombre:");
+        panelModifyMaterials.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 110, -1, -1));
 
         jLabel29.setText("Cantidad");
+        panelModifyMaterials.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 150, -1, -1));
 
         btnMInsertar.setText("Insertar");
         btnMInsertar.addActionListener(new java.awt.event.ActionListener() {
@@ -1055,8 +1151,10 @@ public class DashboardAdmin extends javax.swing.JFrame {
                 btnMInsertarActionPerformed(evt);
             }
         });
+        panelModifyMaterials.add(btnMInsertar, new org.netbeans.lib.awtextra.AbsoluteConstraints(29, 336, -1, -1));
 
         jLabel30.setText("id Lab");
+        panelModifyMaterials.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 190, -1, -1));
 
         btnMModificar.setText("Modificar");
         btnMModificar.addActionListener(new java.awt.event.ActionListener() {
@@ -1064,15 +1162,14 @@ public class DashboardAdmin extends javax.swing.JFrame {
                 btnMModificarActionPerformed(evt);
             }
         });
+        panelModifyMaterials.add(btnMModificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(119, 336, -1, -1));
+        panelModifyMaterials.add(txtMName, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 110, 290, -1));
 
-        btnMEliminar.setText("Eliminar");
-
-        btnMLimpiar.setText("Limpiar");
-        btnMLimpiar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnMLimpiarActionPerformed(evt);
-            }
-        });
+        jLabel31.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel31.setText("Datos");
+        panelModifyMaterials.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(187, 86, -1, -1));
+        panelModifyMaterials.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(391, 37, -1, -1));
+        panelModifyMaterials.add(txtMId, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 20, 72, -1));
 
         btnMBuscar.setText("Buscar");
         btnMBuscar.addActionListener(new java.awt.event.ActionListener() {
@@ -1080,103 +1177,51 @@ public class DashboardAdmin extends javax.swing.JFrame {
                 btnMBuscarActionPerformed(evt);
             }
         });
+        panelModifyMaterials.add(btnMBuscar, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 20, -1, -1));
 
-        jLabel31.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel31.setText("Datos");
+        btnMEliminar.setText("Eliminar");
+        btnMEliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMEliminarActionPerformed(evt);
+            }
+        });
+        panelModifyMaterials.add(btnMEliminar, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 330, -1, -1));
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel4Layout.createSequentialGroup()
-                        .addGap(29, 29, 29)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                                        .addComponent(jLabel30)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 99, Short.MAX_VALUE)
-                                        .addComponent(txtMIdLab, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel4Layout.createSequentialGroup()
-                                        .addComponent(btnMInsertar)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(btnMModificar)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
-                                        .addComponent(btnMEliminar)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(btnMLimpiar)))
-                                .addGap(0, 7, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel28)
-                                    .addComponent(jLabel29))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(txtMQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(txtMName, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(66, 66, 66)
-                        .addComponent(jLabel32)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(txtMBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(btnMBuscar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(txtMUId))))
-                .addGap(18, 18, 18))
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(187, 187, 187)
-                .addComponent(jLabel31)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnMBuscar)
-                            .addComponent(txtMBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtMUId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(37, 37, 37)
-                        .addComponent(jLabel32)))
-                .addGap(12, 12, 12)
-                .addComponent(jLabel31)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel28)
-                    .addComponent(txtMName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel29)
-                    .addComponent(txtMQuantity, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(21, 21, 21)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtMIdLab, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel30))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnMInsertar)
-                    .addComponent(btnMModificar)
-                    .addComponent(btnMEliminar)
-                    .addComponent(btnMLimpiar))
-                .addGap(18, 18, 18))
-        );
+        btnMLimpiar.setText("Limpiar");
+        btnMLimpiar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMLimpiarActionPerformed(evt);
+            }
+        });
+        panelModifyMaterials.add(btnMLimpiar, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 330, -1, -1));
+
+        tablaM.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Id", "Nombre", "Cantidad", "Laboratorio"
+            }
+        ));
+        jScrollPane6.setViewportView(tablaM);
+
+        panelModifyMaterials.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 100, 328, 210));
+        panelModifyMaterials.add(txtMQuantity, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 150, 290, -1));
 
         javax.swing.GroupLayout ModifyMaterialsLayout = new javax.swing.GroupLayout(ModifyMaterials.getContentPane());
         ModifyMaterials.getContentPane().setLayout(ModifyMaterialsLayout);
         ModifyMaterialsLayout.setHorizontalGroup(
             ModifyMaterialsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(ModifyMaterialsLayout.createSequentialGroup()
+                .addComponent(panelModifyMaterials, javax.swing.GroupLayout.PREFERRED_SIZE, 758, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         ModifyMaterialsLayout.setVerticalGroup(
             ModifyMaterialsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelModifyMaterials, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
         );
 
         jLabel33.setText("Seleccionar");
@@ -1519,6 +1564,11 @@ public class DashboardAdmin extends javax.swing.JFrame {
         menuOpciones.add(opcionModificarLaboratorios);
 
         opcionModificarMaterial.setText("Modificar Material");
+        opcionModificarMaterial.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                opcionModificarMaterialActionPerformed(evt);
+            }
+        });
         menuOpciones.add(opcionModificarMaterial);
 
         opcionModificarHorarios.setText("Modificar Horarios");
@@ -1934,19 +1984,113 @@ public class DashboardAdmin extends javax.swing.JFrame {
     }//GEN-LAST:event_cboLTypeActionPerformed
 
     private void btnMInsertarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMInsertarActionPerformed
-        // TODO add your handling code here:
+        String name = txtMName.getText();
+        int quantity = Integer.parseInt(txtMQuantity.getText());
+        int idLab = Integer.parseInt(txtMIdLab.getText());
+
+        // Verificar que el laboratorio exista
+        if (!idLabExiste(idLab)) {
+            JOptionPane.showMessageDialog(this, "El laboratorio especificado no existe.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String query = "INSERT INTO MATERIAL (name, quantity, id_lab) VALUES (?, ?, ?)";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
+            ps = conn.prepareStatement(query);
+            ps.setString(1, name);
+            ps.setInt(2, quantity);
+            ps.setInt(3, idLab);
+            ps.executeUpdate();
+
+            conn.close();
+            cargarMaterialesEnTabla();
+            limpiarCamposMaterial();
+            JOptionPane.showMessageDialog(this, "Material insertado exitosamente");
+        } catch (Exception e) {
+            System.err.println("Error al insertar el material: " + e.getMessage());
+        }
     }//GEN-LAST:event_btnMInsertarActionPerformed
 
     private void btnMModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMModificarActionPerformed
-        // TODO add your handling code here:
+        int id = Integer.parseInt(txtMId.getText());
+        String name = txtMName.getText();
+        int quantity = Integer.parseInt(txtMQuantity.getText());
+        int idLab = Integer.parseInt(txtMIdLab.getText());
+
+        // Validar que el id_lab exista en la tabla LABORATORY
+        if (!idLabExiste(idLab)) {
+            JOptionPane.showMessageDialog(this, "El laboratorio especificado no existe.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String query = "UPDATE MATERIAL SET name = ?, quantity = ?, id_lab = ? WHERE id_material = ?";
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
+            ps = conn.prepareStatement(query);
+            ps.setString(1, name);
+            ps.setInt(2, quantity);
+            ps.setInt(3, idLab);
+            ps.setInt(4, id);
+            ps.executeUpdate();
+
+            conn.close();
+            cargarMaterialesEnTabla();
+            limpiarCamposMaterial();
+            JOptionPane.showMessageDialog(this, "Material modificado exitosamente");
+        } catch (Exception e) {
+            System.err.println("Error al modificar el material: " + e.getMessage());
+        }
     }//GEN-LAST:event_btnMModificarActionPerformed
 
     private void btnMLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMLimpiarActionPerformed
-        // TODO add your handling code here:
+        limpiarCamposMaterial();
     }//GEN-LAST:event_btnMLimpiarActionPerformed
 
     private void btnMBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMBuscarActionPerformed
-        // TODO add your handling code here:
+        String idOrName = txtMId.getText().trim();
+        boolean isNumeric = idOrName.matches("\\d+"); // Verifica si la entrada es un número (ID)
+
+        String query;
+        if (isNumeric) {
+            query = "SELECT id_material, name, quantity, id_lab FROM MATERIAL WHERE id_material = ?";
+        } else {
+            query = "SELECT id_material, name, quantity, id_lab FROM MATERIAL WHERE name = ?";
+        }
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
+            ps = conn.prepareStatement(query);
+            if (isNumeric) {
+                ps.setInt(1, Integer.parseInt(idOrName));
+            } else {
+                ps.setString(1, idOrName);
+            }
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                int id = rs.getInt("id_material");
+                String name = rs.getString("name");
+                int quantity = rs.getInt("quantity");
+                int idLab = rs.getInt("id_lab");
+
+                txtMId.setText(String.valueOf(id));
+                txtMName.setText(name);
+                txtMQuantity.setText(String.valueOf(quantity));
+                txtMIdLab.setText(String.valueOf(idLab));
+            } else {
+                JOptionPane.showMessageDialog(this, "Material no encontrado", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                limpiarCamposMaterial();
+            }
+            conn.close();
+        } catch (Exception e) {
+            System.err.println("Error al buscar el material: " + e.getMessage());
+        }
     }//GEN-LAST:event_btnMBuscarActionPerformed
 
     private void cboHorasF1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboHorasF1ActionPerformed
@@ -2010,6 +2154,47 @@ public class DashboardAdmin extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_btnUEliminarActionPerformed
+
+    private void btnMEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMEliminarActionPerformed
+        int id = Integer.parseInt(txtMId.getText());
+
+        int confirm = JOptionPane.showConfirmDialog(this, "¿Estás seguro de que deseas eliminar este material y reasignar todas sus relaciones a un material genérico?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            int idMaterialGenerico = 1; // ID del material genérico.
+            String updateReservationMaterialQuery = "UPDATE RESERVATION_MATERIAL SET id_material = ? WHERE id_material = ?";
+            String deleteMaterialQuery = "DELETE FROM MATERIAL WHERE id_material = ?";
+
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
+
+                // Reasignar las relaciones en RESERVATION_MATERIAL al material genérico
+                ps = conn.prepareStatement(updateReservationMaterialQuery);
+                ps.setInt(1, idMaterialGenerico);
+                ps.setInt(2, id);
+                ps.executeUpdate();
+
+                // Eliminar el material
+                ps = conn.prepareStatement(deleteMaterialQuery);
+                ps.setInt(1, id);
+                ps.executeUpdate();
+
+                conn.close();
+                cargarMaterialesEnTabla();
+                limpiarCamposMaterial();
+                JOptionPane.showMessageDialog(this, "Material eliminado exitosamente y sus relaciones han sido reasignadas.");
+            } catch (Exception e) {
+                System.err.println("Error al eliminar el material: " + e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnMEliminarActionPerformed
+
+    private void opcionModificarMaterialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionModificarMaterialActionPerformed
+        cargarMaterialesEnTabla();
+        ModifyMaterials.setSize(780, 450);
+        ModifyMaterials.setLocationRelativeTo(null);
+        ModifyMaterials.setVisible(true);
+    }//GEN-LAST:event_opcionModificarMaterialActionPerformed
     
     /**
      * @param args the command line arguments
@@ -2142,14 +2327,15 @@ public class DashboardAdmin extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JTable jTable1;
+    private javax.swing.JTable jTable2;
     private javax.swing.JLabel lblDate;
     private javax.swing.JLabel lblSelectHora;
     private javax.swing.JLabel lblSelectHora1;
@@ -2175,24 +2361,25 @@ public class DashboardAdmin extends javax.swing.JFrame {
     private javax.swing.JRadioButtonMenuItem opcionOscuro;
     private javax.swing.JPanel panelBienvenida;
     private javax.swing.JPanel panelEstatus;
+    private javax.swing.JPanel panelModifyLabs;
+    private javax.swing.JPanel panelModifyMaterials;
     private javax.swing.JPanel panelModifyUsers;
     private javax.swing.JPanel panelOpciones;
     private javax.swing.JPanel panelTabla;
     private javax.swing.JMenu subMenuApariencia;
     private javax.swing.JTable tablaHorariosSemana;
+    private javax.swing.JTable tablaM;
     private javax.swing.JTable tablaMateriales;
     private javax.swing.JTable tablaU;
     private javax.swing.JLabel txtBievenida;
-    private javax.swing.JTextField txtLBuscar;
     private javax.swing.JTextField txtLCapacity;
     private javax.swing.JPasswordField txtLLocation;
     private javax.swing.JTextField txtLName;
     private javax.swing.JTextField txtLUId;
-    private javax.swing.JTextField txtMBuscar;
+    private javax.swing.JTextField txtMId;
     private javax.swing.JTextField txtMIdLab;
     private javax.swing.JTextField txtMName;
-    private javax.swing.JPasswordField txtMQuantity;
-    private javax.swing.JTextField txtMUId;
+    private javax.swing.JTextField txtMQuantity;
     private javax.swing.JTextArea txtPurpose;
     private javax.swing.JTextField txtSBuscar;
     private javax.swing.JTextField txtUId;
