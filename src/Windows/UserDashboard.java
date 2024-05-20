@@ -1,5 +1,7 @@
 package Windows;
 
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.sql.Connection;
@@ -17,6 +19,9 @@ import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 
 public class UserDashboard extends javax.swing.JFrame {
@@ -391,6 +396,7 @@ public class UserDashboard extends javax.swing.JFrame {
         panelHorario = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         tablaHorariosSemana = new javax.swing.JTable();
+        grupoBotonesUser = new javax.swing.ButtonGroup();
         panelPadre = new javax.swing.JPanel();
         panelBienvenida = new javax.swing.JPanel();
         txtBievenida = new javax.swing.JLabel();
@@ -797,12 +803,23 @@ public class UserDashboard extends javax.swing.JFrame {
 
         subMenuApariencia.setText("Apariencia");
 
+        grupoBotonesUser.add(opcionClaro);
         opcionClaro.setSelected(true);
         opcionClaro.setText("Claro");
+        opcionClaro.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                opcionClaroActionPerformed(evt);
+            }
+        });
         subMenuApariencia.add(opcionClaro);
 
-        opcionOscuro.setSelected(true);
+        grupoBotonesUser.add(opcionOscuro);
         opcionOscuro.setText("Oscuro");
+        opcionOscuro.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                opcionOscuroActionPerformed(evt);
+            }
+        });
         subMenuApariencia.add(opcionOscuro);
 
         menuPreferencias.add(subMenuApariencia);
@@ -1114,6 +1131,24 @@ public class UserDashboard extends javax.swing.JFrame {
             Logger.getLogger(UserDashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_opcionAyudaActionPerformed
+
+    private void opcionClaroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionClaroActionPerformed
+        try {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+            SwingUtilities.updateComponentTreeUI(this); // Actualiza el aspecto de todos los componentes
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_opcionClaroActionPerformed
+
+    private void opcionOscuroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionOscuroActionPerformed
+        try {
+            UIManager.setLookAndFeel(new FlatDarkLaf());
+            SwingUtilities.updateComponentTreeUI(this); // Actualiza el aspecto de todos los componentes
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_opcionOscuroActionPerformed
     
     /**
      * @param args the command line arguments
@@ -1169,6 +1204,7 @@ public class UserDashboard extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cboLaboratorios;
     private javax.swing.JComboBox<String> cboMaterial;
     private javax.swing.JComboBox<String> cboType;
+    private javax.swing.ButtonGroup grupoBotonesUser;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;

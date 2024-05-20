@@ -1,5 +1,7 @@
 package Windows;
 
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.sql.Connection;
@@ -18,6 +20,9 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 
 public class AdminDashboard extends javax.swing.JFrame {
@@ -677,6 +682,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         tablaM = new javax.swing.JTable();
         txtMQuantity = new javax.swing.JTextField();
         Statitics = new javax.swing.JDialog();
+        grupoBotonesAdmin = new javax.swing.ButtonGroup();
         panelBienvenida = new javax.swing.JPanel();
         txtBievenida = new javax.swing.JLabel();
         panelEstatus = new javax.swing.JPanel();
@@ -1568,12 +1574,23 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         subMenuApariencia.setText("Apariencia");
 
+        grupoBotonesAdmin.add(opcionClaro);
         opcionClaro.setSelected(true);
         opcionClaro.setText("Claro");
+        opcionClaro.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                opcionClaroActionPerformed(evt);
+            }
+        });
         subMenuApariencia.add(opcionClaro);
 
-        opcionOscuro.setSelected(true);
+        grupoBotonesAdmin.add(opcionOscuro);
         opcionOscuro.setText("Oscuro");
+        opcionOscuro.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                opcionOscuroActionPerformed(evt);
+            }
+        });
         subMenuApariencia.add(opcionOscuro);
 
         menuPreferencias.add(subMenuApariencia);
@@ -2585,6 +2602,24 @@ public class AdminDashboard extends javax.swing.JFrame {
             Logger.getLogger(AdminDashboard.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_opcionAyudaActionPerformed
+
+    private void opcionClaroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionClaroActionPerformed
+        try {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+            SwingUtilities.updateComponentTreeUI(this); // Actualiza el aspecto de todos los componentes
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_opcionClaroActionPerformed
+
+    private void opcionOscuroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionOscuroActionPerformed
+        try {
+            UIManager.setLookAndFeel(new FlatDarkLaf());
+            SwingUtilities.updateComponentTreeUI(this); // Actualiza el aspecto de todos los componentes
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_opcionOscuroActionPerformed
     
     /**
      * @param args the command line arguments
@@ -2676,6 +2711,7 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cboType;
     private javax.swing.JComboBox<String> cboUDepartment;
     private javax.swing.JComboBox<String> cboURole;
+    private javax.swing.ButtonGroup grupoBotonesAdmin;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;

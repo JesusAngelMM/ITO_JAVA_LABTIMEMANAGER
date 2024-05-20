@@ -494,6 +494,8 @@
         </Container>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.ButtonGroup" name="grupoBotonesUser">
+    </Component>
     <Menu class="javax.swing.JMenuBar" name="menuBarraUsuario">
       <SubComponents>
         <Menu class="javax.swing.JMenu" name="menuSalir">
@@ -531,15 +533,26 @@
               <SubComponents>
                 <MenuItem class="javax.swing.JRadioButtonMenuItem" name="opcionClaro">
                   <Properties>
+                    <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+                      <ComponentRef name="grupoBotonesUser"/>
+                    </Property>
                     <Property name="selected" type="boolean" value="true"/>
                     <Property name="text" type="java.lang.String" value="Claro"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="opcionClaroActionPerformed"/>
+                  </Events>
                 </MenuItem>
                 <MenuItem class="javax.swing.JRadioButtonMenuItem" name="opcionOscuro">
                   <Properties>
-                    <Property name="selected" type="boolean" value="true"/>
+                    <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+                      <ComponentRef name="grupoBotonesUser"/>
+                    </Property>
                     <Property name="text" type="java.lang.String" value="Oscuro"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="opcionOscuroActionPerformed"/>
+                  </Events>
                 </MenuItem>
               </SubComponents>
             </Menu>
