@@ -1,5 +1,7 @@
 package Windows;
 
+import java.awt.Desktop;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -9,8 +11,12 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.sql.SQLException;
 import java.lang.ClassNotFoundException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 
@@ -742,6 +748,11 @@ public class DashboardAdmin extends javax.swing.JFrame {
         });
 
         btnCancelar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/cerrar.png"))); // NOI18N
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
 
         tablaMateriales.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1615,6 +1626,11 @@ public class DashboardAdmin extends javax.swing.JFrame {
         menuAyuda.setText("Ayuda");
 
         opcionAyuda.setText("Manual y Documentación");
+        opcionAyuda.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                opcionAyudaActionPerformed(evt);
+            }
+        });
         menuAyuda.add(opcionAyuda);
 
         menuBarraUsuario.add(menuAyuda);
@@ -2548,6 +2564,22 @@ public class DashboardAdmin extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_btnBorrarReservacionActionPerformed
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+        Reservation.dispose();
+    }//GEN-LAST:event_btnCancelarActionPerformed
+
+    private void opcionAyudaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionAyudaActionPerformed
+        try {
+            try {
+                Desktop.getDesktop().browse(new URI("https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER.git"));
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(DashboardAdmin.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(DashboardAdmin.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_opcionAyudaActionPerformed
     
     /**
      * @param args the command line arguments

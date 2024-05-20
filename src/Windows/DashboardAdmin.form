@@ -310,6 +310,9 @@
                   <Image iconType="3" name="/Images/cerrar.png"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCancelarActionPerformed"/>
+              </Events>
             </Component>
             <Container class="javax.swing.JScrollPane" name="jScrollPane2">
               <AuxValues>
@@ -1411,6 +1414,9 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Manual y Documentaci&#xf3;n"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="opcionAyudaActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
