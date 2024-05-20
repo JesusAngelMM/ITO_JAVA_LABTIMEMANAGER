@@ -10,6 +10,7 @@ import javax.swing.table.DefaultTableModel;
 import java.sql.SQLException;
 import java.lang.ClassNotFoundException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.swing.JOptionPane;
 
 
@@ -32,6 +33,7 @@ public class DashboardAdmin extends javax.swing.JFrame {
         agregarListenerTablaU();  // Listener para la tabla de usuarios
         agregarListenerTablaM();  // Listener para la tabla de materiales
         agregarListenerTablaL(); // Añadir el listener a la tabla de laboratorios
+        agregarHorasCombo();
     }
 
     private void mostrarEstatus() {
@@ -468,13 +470,114 @@ public class DashboardAdmin extends javax.swing.JFrame {
         // Añadir más tipos según sea necesario
     }
     
+    //DIALOGO RESERVACION
+    private String obtenerNombreLaboratorio(int idLab) throws SQLException, ClassNotFoundException {
+        String nombreLaboratorio = "";
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
+        String query = "SELECT name FROM LABORATORY WHERE id_lab = ?";
+        ps = conn.prepareStatement(query);
+        ps.setInt(1, idLab);
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            nombreLaboratorio = rs.getString("name");
+        }
+        conn.close();
+        return nombreLaboratorio;
+    }
+    
+    private void agregarHorasCombo(){
+        // Añadir opciones a los combo boxes
+        String[] horas = { "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00" };
+        for (String hora : horas) {
+            cboHorasI.addItem(hora);
+            cboHorasF.addItem(hora);
+        }
+    }
+      
+    private boolean existeOtraReservacion(String date, String startTime, String endTime, int idLab, int idReservacion) throws SQLException, ClassNotFoundException {
+        boolean existe = false;
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(URL, usuario, contrasena);
+            String query = "SELECT COUNT(*) FROM RESERVATION R "
+                    + "JOIN SCHEDULE S ON R.id_schedule = S.id_schedule "
+                    + "WHERE S.date = ? AND S.start_time = ? AND S.end_time = ? AND R.id_lab = ? AND R.id_reservation != ?";
+            ps = conn.prepareStatement(query);
+            ps.setString(1, date);
+            ps.setString(2, startTime);
+            ps.setString(3, endTime);
+            ps.setInt(4, idLab);
+            ps.setInt(5, idReservacion);
+            rs = ps.executeQuery();
+
+            if (rs.next() && rs.getInt(1) > 0) {
+                existe = true;
+            }
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (ps != null) {
+                ps.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+
+        return existe;
+    }
+
+    private int obtenerIdSchedule(int idReservacion) throws SQLException, ClassNotFoundException {
+        int idSchedule = -1;
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
+        String query = "SELECT id_schedule FROM RESERVATION WHERE id_reservation = ?";
+        ps = conn.prepareStatement(query);
+        ps.setInt(1, idReservacion);
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            idSchedule = rs.getInt("id_schedule");
+        }
+        conn.close();
+        return idSchedule;
+    }
+    
+    private void actualizarSchedule(int idSchedule, String date, String startTime, String endTime) throws SQLException, ClassNotFoundException {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
+        String query = "UPDATE SCHEDULE SET date = ?, start_time = ?, end_time = ? WHERE id_schedule = ?";
+        ps = conn.prepareStatement(query);
+        ps.setString(1, date);
+        ps.setString(2, startTime);
+        ps.setString(3, endTime);
+        ps.setInt(4, idSchedule);
+        ps.executeUpdate();
+        conn.close();
+    }
+
+    private void eliminarMaterialesReservacion(int idReservacion) throws SQLException, ClassNotFoundException {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
+        String query = "DELETE FROM RESERVATION_MATERIAL WHERE id_reservation = ?";
+        ps = conn.prepareStatement(query);
+        ps.setInt(1, idReservacion);
+        ps.executeUpdate();
+        conn.close();
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
         Reservation = new javax.swing.JDialog();
-        jPanel1 = new javax.swing.JPanel();
+        panelReservation = new javax.swing.JPanel();
         btnAgregarMaterial = new javax.swing.JButton();
         jLabel19 = new javax.swing.JLabel();
         cboHorasF = new javax.swing.JComboBox<>();
@@ -501,6 +604,12 @@ public class DashboardAdmin extends javax.swing.JFrame {
         txtPurpose = new javax.swing.JTextArea();
         cboLaboratorios = new javax.swing.JComboBox<>();
         lblDate = new javax.swing.JLabel();
+        txtIdReservacion = new javax.swing.JTextField();
+        btnBuscarReservacion = new javax.swing.JButton();
+        jLabel33 = new javax.swing.JLabel();
+        btnActualizarReservacion = new javax.swing.JButton();
+        jLabel34 = new javax.swing.JLabel();
+        btnBorrarReservacion = new javax.swing.JButton();
         ModifyUsers = new javax.swing.JDialog();
         panelModifyUsers = new javax.swing.JPanel();
         txtUMail = new javax.swing.JTextField();
@@ -561,36 +670,6 @@ public class DashboardAdmin extends javax.swing.JFrame {
         jScrollPane6 = new javax.swing.JScrollPane();
         tablaM = new javax.swing.JTable();
         txtMQuantity = new javax.swing.JTextField();
-        ModifyReservation = new javax.swing.JDialog();
-        jPanel2 = new javax.swing.JPanel();
-        btnAgregarMaterialR = new javax.swing.JButton();
-        jLabel41 = new javax.swing.JLabel();
-        cboHorasFR = new javax.swing.JComboBox<>();
-        cboTypeR = new javax.swing.JComboBox<>();
-        cboHorasIR = new javax.swing.JComboBox<>();
-        btnHacerReservacionR = new javax.swing.JButton();
-        btnCancelarR = new javax.swing.JButton();
-        jScrollPane8 = new javax.swing.JScrollPane();
-        tablaMaterialesR = new javax.swing.JTable();
-        btnExportarPDFR = new javax.swing.JButton();
-        jLabel42 = new javax.swing.JLabel();
-        jLabel43 = new javax.swing.JLabel();
-        jLabel44 = new javax.swing.JLabel();
-        jLabel45 = new javax.swing.JLabel();
-        jLabel46 = new javax.swing.JLabel();
-        lblSelectLaboratorio2 = new javax.swing.JLabel();
-        lblSelectMateriales2 = new javax.swing.JLabel();
-        btnEliminarElementoR = new javax.swing.JButton();
-        jLabel47 = new javax.swing.JLabel();
-        cboMaterialR = new javax.swing.JComboBox<>();
-        calendarioR = new com.toedter.calendar.JCalendar();
-        lblSelectHora2 = new javax.swing.JLabel();
-        jScrollPane9 = new javax.swing.JScrollPane();
-        txtPurposeR = new javax.swing.JTextArea();
-        cboRLaboratorios = new javax.swing.JComboBox<>();
-        lblDate1 = new javax.swing.JLabel();
-        txtIdR = new javax.swing.JTextField();
-        btnBuscarR = new javax.swing.JButton();
         Statitics = new javax.swing.JDialog();
         panelBienvenida = new javax.swing.JPanel();
         txtBievenida = new javax.swing.JLabel();
@@ -734,27 +813,55 @@ public class DashboardAdmin extends javax.swing.JFrame {
 
         lblDate.setText("0000-00-00");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        btnBuscarReservacion.setText("Buscar");
+        btnBuscarReservacion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuscarReservacionActionPerformed(evt);
+            }
+        });
+
+        jLabel33.setText("Actualizar");
+
+        btnActualizarReservacion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/actualizar.png"))); // NOI18N
+        btnActualizarReservacion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnActualizarReservacionActionPerformed(evt);
+            }
+        });
+
+        jLabel34.setText("Borrar");
+
+        btnBorrarReservacion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/papelera.png"))); // NOI18N
+        btnBorrarReservacion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBorrarReservacionActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout panelReservationLayout = new javax.swing.GroupLayout(panelReservation);
+        panelReservation.setLayout(panelReservationLayout);
+        panelReservationLayout.setHorizontalGroup(
+            panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelReservationLayout.createSequentialGroup()
                 .addGap(15, 15, 15)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelReservationLayout.createSequentialGroup()
                         .addComponent(jLabel11)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addComponent(lblSelectLaboratorio)
-                                .addGap(18, 18, 18)
-                                .addComponent(cboLaboratorios, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(txtIdReservacion, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnBuscarReservacion))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReservationLayout.createSequentialGroup()
+                        .addComponent(lblSelectLaboratorio)
+                        .addGap(18, 18, 18)
+                        .addComponent(cboLaboratorios, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReservationLayout.createSequentialGroup()
+                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelReservationLayout.createSequentialGroup()
+                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel19)
                                     .addComponent(cboType, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addGroup(panelReservationLayout.createSequentialGroup()
                                         .addComponent(cboHorasI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -763,52 +870,70 @@ public class DashboardAdmin extends javax.swing.JFrame {
                                         .addGap(18, 18, 18)
                                         .addComponent(lblDate, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addComponent(calendario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(lblSelectHora)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addComponent(lblSelectHora))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 162, Short.MAX_VALUE))
+                            .addGroup(panelReservationLayout.createSequentialGroup()
+                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(panelReservationLayout.createSequentialGroup()
+                                        .addComponent(jLabel33)
+                                        .addGap(24, 24, 24)
+                                        .addComponent(btnActualizarReservacion, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(panelReservationLayout.createSequentialGroup()
                                         .addComponent(jLabel12)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(btnHacerReservacion, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(jLabel14)
-                                        .addGap(12, 12, 12)
-                                        .addComponent(btnExportarPDF, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(30, 30, 30)
-                                        .addComponent(jLabel9)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 156, Short.MAX_VALUE)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(cboMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(36, 36, 36)
-                                        .addComponent(btnAgregarMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(btnEliminarElemento, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(lblSelectMateriales, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel10, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.LEADING))))
-                        .addGap(27, 27, 27))))
+                                        .addGap(34, 34, 34)
+                                        .addComponent(btnHacerReservacion, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel34)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnBorrarReservacion, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(37, 37, 37)
+                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel14)
+                                    .addComponent(jLabel9))
+                                .addGap(27, 27, 27)
+                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(btnExportarPDF, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(39, 39, 39)))
+                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addGroup(panelReservationLayout.createSequentialGroup()
+                                .addComponent(cboMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(36, 36, 36)
+                                .addComponent(btnAgregarMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnEliminarElemento, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(lblSelectMateriales, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel10, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.LEADING))))
+                .addGap(27, 27, 27))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+        panelReservationLayout.setVerticalGroup(
+            panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReservationLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel11)
-                .addGap(29, 29, 29)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelReservationLayout.createSequentialGroup()
+                        .addComponent(jLabel11)
+                        .addGap(29, 29, 29))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReservationLayout.createSequentialGroup()
+                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtIdReservacion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnBuscarReservacion))
+                        .addGap(18, 18, 18)))
+                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblSelectLaboratorio)
                     .addComponent(cboLaboratorios, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(42, 42, 42)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelReservationLayout.createSequentialGroup()
                         .addComponent(lblSelectHora)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(calendario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblDate, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(cboHorasI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(cboHorasF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jLabel13)))
@@ -816,43 +941,56 @@ public class DashboardAdmin extends javax.swing.JFrame {
                         .addComponent(jLabel19)
                         .addGap(12, 12, 12)
                         .addComponent(cboType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnExportarPDF)
-                            .addComponent(jLabel9)
-                            .addComponent(jLabel12)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(btnHacerReservacion)
-                            .addComponent(btnCancelar)
-                            .addComponent(jLabel14))
-                        .addGap(17, 17, 17))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(lblSelectMateriales)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cboMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(btnEliminarElemento)
-                            .addComponent(btnAgregarMaterial))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel10)
+                            .addComponent(jLabel12))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 11, Short.MAX_VALUE))))
+                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel33)
+                            .addComponent(btnActualizarReservacion))
+                        .addGap(12, 12, 12))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReservationLayout.createSequentialGroup()
+                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelReservationLayout.createSequentialGroup()
+                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addGroup(panelReservationLayout.createSequentialGroup()
+                                        .addComponent(lblSelectMateriales)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(cboMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(btnEliminarElemento)
+                                    .addComponent(btnAgregarMaterial))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel10)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jScrollPane3))
+                            .addGroup(panelReservationLayout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnExportarPDF)
+                                    .addComponent(jLabel14)
+                                    .addComponent(btnBorrarReservacion)
+                                    .addComponent(jLabel34))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnCancelar)
+                                    .addComponent(jLabel9))))
+                        .addGap(14, 14, 14))))
         );
 
         javax.swing.GroupLayout ReservationLayout = new javax.swing.GroupLayout(Reservation.getContentPane());
         Reservation.getContentPane().setLayout(ReservationLayout);
         ReservationLayout.setHorizontalGroup(
             ReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelReservation, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         ReservationLayout.setVerticalGroup(
             ReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ReservationLayout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 6, Short.MAX_VALUE))
+                .addComponent(panelReservation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         ModifyUsers.setTitle("Modificar Usuarios");
@@ -1306,247 +1444,6 @@ public class DashboardAdmin extends javax.swing.JFrame {
             .addComponent(panelModifyMaterials, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
         );
 
-        ModifyReservation.setTitle("Modificar Reservaciones");
-        ModifyReservation.setResizable(false);
-
-        btnAgregarMaterialR.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/aceptar.png"))); // NOI18N
-        btnAgregarMaterialR.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAgregarMaterialRActionPerformed(evt);
-            }
-        });
-
-        jLabel41.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel41.setText("Tipo:");
-
-        cboHorasFR.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00" }));
-        cboHorasFR.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cboHorasFRActionPerformed(evt);
-            }
-        });
-
-        cboTypeR.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Práctica", "Clase", "Recorrido", "Mantenimiento" }));
-
-        cboHorasIR.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00" }));
-        cboHorasIR.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cboHorasIRActionPerformed(evt);
-            }
-        });
-
-        btnHacerReservacionR.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/guardar.png"))); // NOI18N
-        btnHacerReservacionR.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnHacerReservacionRActionPerformed(evt);
-            }
-        });
-
-        btnCancelarR.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/cerrar.png"))); // NOI18N
-
-        tablaMaterialesR.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Material"
-            }
-        ));
-        jScrollPane8.setViewportView(tablaMaterialesR);
-
-        btnExportarPDFR.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/exportar_pdf.png"))); // NOI18N
-        btnExportarPDFR.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnExportarPDFRActionPerformed(evt);
-            }
-        });
-
-        jLabel42.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel42.setText("Proposito:");
-
-        jLabel43.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel43.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel43.setText("Crear una nueva reservación");
-
-        jLabel44.setText("Guardar");
-
-        jLabel45.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel45.setText("a");
-
-        jLabel46.setText("Exportar");
-
-        lblSelectLaboratorio2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        lblSelectLaboratorio2.setText("Seleccionar laboratorio:");
-
-        lblSelectMateriales2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        lblSelectMateriales2.setText("Seleccionar material:");
-
-        btnEliminarElementoR.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/papelera.png"))); // NOI18N
-        btnEliminarElementoR.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnEliminarElementoRActionPerformed(evt);
-            }
-        });
-
-        jLabel47.setText("Cancelar");
-
-        cboMaterialR.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        cboMaterialR.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cboMaterialRActionPerformed(evt);
-            }
-        });
-
-        calendarioR.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                calendarioRPropertyChange(evt);
-            }
-        });
-
-        lblSelectHora2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        lblSelectHora2.setText("Seleccionar Fecha:");
-
-        txtPurposeR.setColumns(20);
-        txtPurposeR.setRows(5);
-        jScrollPane9.setViewportView(txtPurposeR);
-
-        cboRLaboratorios.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Laboratorio de Fisicoquímica", "Laboratorio de Ing. Civil", "Laboratorio de Ing. Eléctrica", "Laboratorio de Ing. Industrial", "Laboratorio de Ing. Química e Ing. Mecánica Pesada", "Laboratorio de Simulación" }));
-
-        lblDate1.setText("0000-00-00");
-
-        txtIdR.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtIdRActionPerformed(evt);
-            }
-        });
-
-        btnBuscarR.setText("Buscar");
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel43)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(txtIdR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnBuscarR))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addComponent(lblSelectLaboratorio2)
-                        .addGap(18, 18, 18)
-                        .addComponent(cboRLaboratorios, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel41)
-                            .addComponent(cboTypeR, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(cboHorasIR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel45, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(5, 5, 5)
-                                .addComponent(cboHorasFR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(lblDate1, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(calendarioR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(lblSelectHora2)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(jLabel44)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btnHacerReservacionR, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel46)
-                                .addGap(12, 12, 12)
-                                .addComponent(btnExportarPDFR, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(30, 30, 30)
-                                .addComponent(jLabel47)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btnCancelarR, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 156, Short.MAX_VALUE)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jScrollPane8, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(cboMaterialR, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(36, 36, 36)
-                                .addComponent(btnAgregarMaterialR, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnEliminarElementoR, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(lblSelectMateriales2, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel42, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane9, javax.swing.GroupLayout.Alignment.LEADING))))
-                .addGap(27, 27, 27))
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel43)
-                    .addComponent(txtIdR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnBuscarR))
-                .addGap(27, 27, 27)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblSelectLaboratorio2)
-                    .addComponent(cboRLaboratorios, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(42, 42, 42)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(lblSelectHora2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(calendarioR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblDate1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(cboHorasIR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(cboHorasFR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel45)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel41)
-                        .addGap(12, 12, 12)
-                        .addComponent(cboTypeR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnExportarPDFR)
-                            .addComponent(jLabel47)
-                            .addComponent(jLabel44)
-                            .addComponent(btnHacerReservacionR)
-                            .addComponent(btnCancelarR)
-                            .addComponent(jLabel46))
-                        .addGap(17, 17, 17))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(lblSelectMateriales2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cboMaterialR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(btnEliminarElementoR)
-                            .addComponent(btnAgregarMaterialR))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel42)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 11, Short.MAX_VALUE))))
-        );
-
-        javax.swing.GroupLayout ModifyReservationLayout = new javax.swing.GroupLayout(ModifyReservation.getContentPane());
-        ModifyReservation.getContentPane().setLayout(ModifyReservationLayout);
-        ModifyReservationLayout.setHorizontalGroup(
-            ModifyReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        ModifyReservationLayout.setVerticalGroup(
-            ModifyReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(ModifyReservationLayout.createSequentialGroup()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 6, Short.MAX_VALUE))
-        );
-
         javax.swing.GroupLayout StatiticsLayout = new javax.swing.GroupLayout(Statitics.getContentPane());
         Statitics.getContentPane().setLayout(StatiticsLayout);
         StatiticsLayout.setHorizontalGroup(
@@ -1675,7 +1572,7 @@ public class DashboardAdmin extends javax.swing.JFrame {
 
         menuOpciones.setText("Opciones");
 
-        opcionAgregarReservacion.setText("Crear una reservación");
+        opcionAgregarReservacion.setText("Modificar Reservación");
         opcionAgregarReservacion.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 opcionAgregarReservacionActionPerformed(evt);
@@ -2451,41 +2348,206 @@ public class DashboardAdmin extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnLEliminarActionPerformed
 
-    private void btnAgregarMaterialRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarMaterialRActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnAgregarMaterialRActionPerformed
+    private void btnBuscarReservacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarReservacionActionPerformed
+        int reservationId = Integer.parseInt(txtIdReservacion.getText());
 
-    private void cboHorasFRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboHorasFRActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cboHorasFRActionPerformed
+        String queryReservation = "SELECT id_lab, id_schedule, purpose, status, type FROM RESERVATION WHERE id_reservation = ?";
+        String querySchedule = "SELECT date, start_time, end_time FROM SCHEDULE WHERE id_schedule = ?";
+        String queryMaterials = "SELECT M.name FROM MATERIAL M JOIN RESERVATION_MATERIAL RM ON M.id_material = RM.id_material WHERE RM.id_reservation = ?";
 
-    private void cboHorasIRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboHorasIRActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cboHorasIRActionPerformed
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
 
-    private void btnHacerReservacionRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHacerReservacionRActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnHacerReservacionRActionPerformed
+            // Cargar datos de la reservación
+            ps = conn.prepareStatement(queryReservation);
+            ps.setInt(1, reservationId);
+            rs = ps.executeQuery();
 
-    private void btnExportarPDFRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarPDFRActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnExportarPDFRActionPerformed
+            if (rs.next()) {
+                int labId = rs.getInt("id_lab");
+                int scheduleId = rs.getInt("id_schedule");
+                String purpose = rs.getString("purpose");
+                String status = rs.getString("status");
+                String type = rs.getString("type");
 
-    private void btnEliminarElementoRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarElementoRActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnEliminarElementoRActionPerformed
+                // Asignar datos a los componentes
+                txtPurpose.setText(purpose);
+                cboType.setSelectedItem(type);
 
-    private void cboMaterialRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboMaterialRActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cboMaterialRActionPerformed
+                // Seleccionar el laboratorio correspondiente
+                for (int i = 0; i < cboLaboratorios.getItemCount(); i++) {
+                    if (cboLaboratorios.getItemAt(i).equals(obtenerNombreLaboratorio(labId))) {
+                        cboLaboratorios.setSelectedIndex(i);
+                        break;
+                    }
+                }
 
-    private void calendarioRPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_calendarioRPropertyChange
-        // TODO add your handling code here:
-    }//GEN-LAST:event_calendarioRPropertyChange
+                // Cargar datos del horario
+                ps = conn.prepareStatement(querySchedule);
+                ps.setInt(1, scheduleId);
+                rs = ps.executeQuery();
 
-    private void txtIdRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIdRActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtIdRActionPerformed
+                if (rs.next()) {
+                    java.util.Date date = rs.getDate("date");
+                    String startTime = rs.getString("start_time");
+                    String endTime = rs.getString("end_time");
+
+                    // Formatear las horas para coincidir con las opciones del combo box
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+                    String formattedStartTime = sdf.format(rs.getTime("start_time"));
+                    String formattedEndTime = sdf.format(rs.getTime("end_time"));
+
+                    calendario.setDate(date);
+                    cboHorasI.setSelectedItem(formattedStartTime);
+                    cboHorasF.setSelectedItem(formattedEndTime);
+                    lblDate.setText(new SimpleDateFormat("yyyy-MM-dd").format(date));
+                }
+
+                // Cargar materiales asociados
+                DefaultTableModel materialModel = (DefaultTableModel) tablaMateriales.getModel();
+                materialModel.setRowCount(0); // Limpiar la tabla antes de agregar nuevos datos
+
+                ps = conn.prepareStatement(queryMaterials);
+                ps.setInt(1, reservationId);
+                rs = ps.executeQuery();
+
+                while (rs.next()) {
+                    String materialName = rs.getString("name");
+                    materialModel.addRow(new Object[]{materialName});
+                }
+
+                conn.close();
+            } else {
+                JOptionPane.showMessageDialog(this, "Reservación no encontrada", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception e) {
+            System.err.println("Error al buscar la reservación: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnBuscarReservacionActionPerformed
+
+    private void btnActualizarReservacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarReservacionActionPerformed
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            // Obtener los datos del formulario
+            int idReservacion = Integer.parseInt(txtIdReservacion.getText());
+            String laboratorio = cboLaboratorios.getSelectedItem().toString();
+            DefaultTableModel materialModel = (DefaultTableModel) tablaMateriales.getModel();
+            String date = lblDate.getText();
+            String horaInicio = cboHorasI.getSelectedItem().toString();
+            String horaFin = cboHorasF.getSelectedItem().toString();
+            String proposito = txtPurpose.getText();
+            String status = "confirmed";
+            String tipo = cboType.getSelectedItem().toString();
+
+            // Obtener IDs de las tablas relacionadas
+            int idLab = obtenerIdLaboratorio(laboratorio);
+
+            // Verificar si ya existe una reservación en esa fecha y hora para este laboratorio y no es la misma reservación
+            if (existeOtraReservacion(date, horaInicio, horaFin, idLab, idReservacion)) {
+                JOptionPane.showMessageDialog(this, "Ya existe una reservación en esa fecha y hora para este laboratorio", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Obtener el id_schedule de la reservación actual
+            int idSchedule = obtenerIdSchedule(idReservacion);
+
+            // Actualizar el horario
+            actualizarSchedule(idSchedule, date, horaInicio, horaFin);
+
+            // Actualizar la reservación en la base de datos
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(URL, usuario, contrasena);
+            String query = "UPDATE RESERVATION SET id_lab = ?, purpose = ?, status = ?, type = ? WHERE id_reservation = ?";
+            ps = conn.prepareStatement(query);
+            ps.setInt(1, idLab);
+            ps.setString(2, proposito);
+            ps.setString(3, status);
+            ps.setString(4, tipo);
+            ps.setInt(5, idReservacion);
+            ps.executeUpdate();
+
+            // Actualizar los materiales asociados a la reservación
+            eliminarMaterialesReservacion(idReservacion);
+            for (int i = 0; i < materialModel.getRowCount(); i++) {
+                String material = materialModel.getValueAt(i, 0).toString();
+                int idMaterial = obtenerIdMaterial(material);
+                insertarReservationMaterial(idReservacion, idMaterial, 1); // Puedes ajustar la cantidad según sea necesario
+            }
+
+            JOptionPane.showMessageDialog(this, "Reservación actualizada exitosamente");
+            Reservation.setVisible(false);
+            //mostrarReservaciones(); // Actualizar la tabla de reservaciones
+        } catch (Exception e) {
+            System.err.println("Error al actualizar la reservación: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar la conexión: " + e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnActualizarReservacionActionPerformed
+
+    private void btnBorrarReservacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBorrarReservacionActionPerformed
+        Connection conn = null;
+        PreparedStatement ps = null;
+
+        try {
+            int idReservacion = Integer.parseInt(txtIdReservacion.getText().trim());
+
+            // Confirmar eliminación
+            int confirm = JOptionPane.showConfirmDialog(this, "¿Estás seguro de que deseas eliminar esta reservación?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
+            if (confirm != JOptionPane.YES_OPTION) {
+                return;
+            }
+
+            // Conectar a la base de datos
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(URL, usuario, contrasena);
+
+            // Eliminar registros de RESERVATION_MATERIAL relacionados con la reservación
+            String queryEliminarMateriales = "DELETE FROM RESERVATION_MATERIAL WHERE id_reservation = ?";
+            ps = conn.prepareStatement(queryEliminarMateriales);
+            ps.setInt(1, idReservacion);
+            ps.executeUpdate();
+            ps.close();
+
+            // Eliminar la reservación
+            String queryEliminarReservacion = "DELETE FROM RESERVATION WHERE id_reservation = ?";
+            ps = conn.prepareStatement(queryEliminarReservacion);
+            ps.setInt(1, idReservacion);
+            ps.executeUpdate();
+            ps.close();
+
+            // Mostrar mensaje de éxito y actualizar la tabla de reservaciones
+            JOptionPane.showMessageDialog(this, "Reservación eliminada exitosamente");
+        } catch (Exception e) {
+            System.err.println("Error al eliminar la reservación: " + e.getMessage());
+        } finally {
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                System.err.println("Error al cerrar la conexión: " + e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnBorrarReservacionActionPerformed
     
     /**
      * @param args the command line arguments
@@ -2532,21 +2594,17 @@ public class DashboardAdmin extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JDialog ModifyLabs;
     private javax.swing.JDialog ModifyMaterials;
-    private javax.swing.JDialog ModifyReservation;
     private javax.swing.JDialog ModifyUsers;
     private javax.swing.JDialog Reservation;
     private javax.swing.JDialog Statitics;
+    private javax.swing.JButton btnActualizarReservacion;
     private javax.swing.JButton btnAgregarMaterial;
-    private javax.swing.JButton btnAgregarMaterialR;
-    private javax.swing.JButton btnBuscarR;
+    private javax.swing.JButton btnBorrarReservacion;
+    private javax.swing.JButton btnBuscarReservacion;
     private javax.swing.JButton btnCancelar;
-    private javax.swing.JButton btnCancelarR;
     private javax.swing.JButton btnEliminarElemento;
-    private javax.swing.JButton btnEliminarElementoR;
     private javax.swing.JButton btnExportarPDF;
-    private javax.swing.JButton btnExportarPDFR;
     private javax.swing.JButton btnHacerReservacion;
-    private javax.swing.JButton btnHacerReservacionR;
     private javax.swing.JButton btnLBuscar;
     private javax.swing.JButton btnLEliminar;
     private javax.swing.JButton btnLInsertar;
@@ -2565,18 +2623,12 @@ public class DashboardAdmin extends javax.swing.JFrame {
     private javax.swing.JButton btnVerDetalles;
     private com.toedter.calendar.JCalendar calendario;
     private com.toedter.calendar.JCalendar calendarioHorarios;
-    private com.toedter.calendar.JCalendar calendarioR;
     private javax.swing.JComboBox<String> cboHorasF;
-    private javax.swing.JComboBox<String> cboHorasFR;
     private javax.swing.JComboBox<String> cboHorasI;
-    private javax.swing.JComboBox<String> cboHorasIR;
     private javax.swing.JComboBox<String> cboLType;
     private javax.swing.JComboBox<String> cboLaboratorios;
     private javax.swing.JComboBox<String> cboMaterial;
-    private javax.swing.JComboBox<String> cboMaterialR;
-    private javax.swing.JComboBox<String> cboRLaboratorios;
     private javax.swing.JComboBox<String> cboType;
-    private javax.swing.JComboBox<String> cboTypeR;
     private javax.swing.JComboBox<String> cboUDepartment;
     private javax.swing.JComboBox<String> cboURole;
     private javax.swing.JLabel jLabel1;
@@ -2605,37 +2657,24 @@ public class DashboardAdmin extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel30;
     private javax.swing.JLabel jLabel31;
     private javax.swing.JLabel jLabel32;
+    private javax.swing.JLabel jLabel33;
+    private javax.swing.JLabel jLabel34;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel41;
-    private javax.swing.JLabel jLabel42;
-    private javax.swing.JLabel jLabel43;
-    private javax.swing.JLabel jLabel44;
-    private javax.swing.JLabel jLabel45;
-    private javax.swing.JLabel jLabel46;
-    private javax.swing.JLabel jLabel47;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane7;
-    private javax.swing.JScrollPane jScrollPane8;
-    private javax.swing.JScrollPane jScrollPane9;
     private javax.swing.JLabel lblDate;
-    private javax.swing.JLabel lblDate1;
     private javax.swing.JLabel lblSelectHora;
-    private javax.swing.JLabel lblSelectHora2;
     private javax.swing.JLabel lblSelectLaboratorio;
-    private javax.swing.JLabel lblSelectLaboratorio2;
     private javax.swing.JLabel lblSelectMateriales;
-    private javax.swing.JLabel lblSelectMateriales2;
     private javax.swing.JMenu menuAyuda;
     private javax.swing.JMenuBar menuBarraUsuario;
     private javax.swing.JMenu menuOpciones;
@@ -2658,16 +2697,16 @@ public class DashboardAdmin extends javax.swing.JFrame {
     private javax.swing.JPanel panelModifyMaterials;
     private javax.swing.JPanel panelModifyUsers;
     private javax.swing.JPanel panelOpciones;
+    private javax.swing.JPanel panelReservation;
     private javax.swing.JPanel panelTabla;
     private javax.swing.JMenu subMenuApariencia;
     private javax.swing.JTable tablaHorariosSemana;
     private javax.swing.JTable tablaL;
     private javax.swing.JTable tablaM;
     private javax.swing.JTable tablaMateriales;
-    private javax.swing.JTable tablaMaterialesR;
     private javax.swing.JTable tablaU;
     private javax.swing.JLabel txtBievenida;
-    private javax.swing.JTextField txtIdR;
+    private javax.swing.JTextField txtIdReservacion;
     private javax.swing.JTextField txtLCapacity;
     private javax.swing.JTextField txtLId;
     private javax.swing.JTextField txtLLocation;
@@ -2677,7 +2716,6 @@ public class DashboardAdmin extends javax.swing.JFrame {
     private javax.swing.JTextField txtMName;
     private javax.swing.JTextField txtMQuantity;
     private javax.swing.JTextArea txtPurpose;
-    private javax.swing.JTextArea txtPurposeR;
     private javax.swing.JTextField txtUId;
     private javax.swing.JTextField txtUMail;
     private javax.swing.JTextField txtUName;

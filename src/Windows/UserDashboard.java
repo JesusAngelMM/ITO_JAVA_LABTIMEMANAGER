@@ -449,6 +449,11 @@ public class UserDashboard extends javax.swing.JFrame {
         });
 
         btnCancelar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/cerrar.png"))); // NOI18N
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelarActionPerformed(evt);
+            }
+        });
 
         tablaMateriales.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1073,6 +1078,10 @@ public class UserDashboard extends javax.swing.JFrame {
             actualizarTablaHorariosSemana(selectedDate);
         }
     }//GEN-LAST:event_calendarioHorariosPropertyChange
+
+    private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
+
+    }//GEN-LAST:event_btnCancelarActionPerformed
     
     /**
      * @param args the command line arguments
