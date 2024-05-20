@@ -392,10 +392,10 @@ public class UserDashboard extends javax.swing.JFrame {
         lblDate = new javax.swing.JLabel();
         Schedules = new javax.swing.JDialog();
         panelFecha = new javax.swing.JPanel();
-        calendarioHorarios = new com.toedter.calendar.JCalendar();
         panelHorario = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         tablaHorariosSemana = new javax.swing.JTable();
+        calendarioHorarios = new com.toedter.calendar.JCalendar();
         grupoBotonesUser = new javax.swing.ButtonGroup();
         panelPadre = new javax.swing.JPanel();
         panelBienvenida = new javax.swing.JPanel();
@@ -425,6 +425,7 @@ public class UserDashboard extends javax.swing.JFrame {
         menuAyuda = new javax.swing.JMenu();
         opcionAyuda = new javax.swing.JMenuItem();
 
+        Reservation.setTitle("Crear una reservación");
         Reservation.setResizable(false);
 
         btnAgregarMaterial.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/aceptar.png"))); // NOI18N
@@ -520,6 +521,7 @@ public class UserDashboard extends javax.swing.JFrame {
             }
         });
 
+        calendario.setPreferredSize(new java.awt.Dimension(250, 185));
         calendario.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 calendarioPropertyChange(evt);
@@ -642,7 +644,7 @@ public class UserDashboard extends javax.swing.JFrame {
                         .addComponent(jLabel10)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 11, Short.MAX_VALUE))))
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
 
         javax.swing.GroupLayout ReservationLayout = new javax.swing.GroupLayout(Reservation.getContentPane());
@@ -658,16 +660,10 @@ public class UserDashboard extends javax.swing.JFrame {
                 .addGap(0, 6, Short.MAX_VALUE))
         );
 
+        Schedules.setTitle("Ver horarios");
         Schedules.setResizable(false);
 
         panelFecha.setLayout(new javax.swing.BoxLayout(panelFecha, javax.swing.BoxLayout.LINE_AXIS));
-
-        calendarioHorarios.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                calendarioHorariosPropertyChange(evt);
-            }
-        });
-        panelFecha.add(calendarioHorarios);
 
         panelHorario.setLayout(new javax.swing.BoxLayout(panelHorario, javax.swing.BoxLayout.LINE_AXIS));
 
@@ -684,24 +680,36 @@ public class UserDashboard extends javax.swing.JFrame {
         ));
         jScrollPane4.setViewportView(tablaHorariosSemana);
 
+        calendarioHorarios.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                calendarioHorariosPropertyChange(evt);
+            }
+        });
+
         javax.swing.GroupLayout SchedulesLayout = new javax.swing.GroupLayout(Schedules.getContentPane());
         Schedules.getContentPane().setLayout(SchedulesLayout);
         SchedulesLayout.setHorizontalGroup(
             SchedulesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(SchedulesLayout.createSequentialGroup()
                 .addComponent(panelFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(calendarioHorarios, javax.swing.GroupLayout.PREFERRED_SIZE, 265, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelHorario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(18, Short.MAX_VALUE))
         );
         SchedulesLayout.setVerticalGroup(
             SchedulesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(panelFecha, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(panelHorario, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, SchedulesLayout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(SchedulesLayout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addGroup(SchedulesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(calendarioHorarios, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(17, Short.MAX_VALUE))
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
