@@ -706,7 +706,6 @@ public class DashboardAdmin extends javax.swing.JFrame {
         opcionModificarUsuarios = new javax.swing.JMenuItem();
         opcionModificarLaboratorios = new javax.swing.JMenuItem();
         opcionModificarMaterial = new javax.swing.JMenuItem();
-        opcionModificarHorarios = new javax.swing.JMenuItem();
         opcionEstadisticas = new javax.swing.JMenuItem();
         menuAyuda = new javax.swing.JMenu();
         opcionAyuda = new javax.swing.JMenuItem();
@@ -1615,9 +1614,6 @@ public class DashboardAdmin extends javax.swing.JFrame {
         });
         menuOpciones.add(opcionModificarMaterial);
 
-        opcionModificarHorarios.setText("Modificar Horarios");
-        menuOpciones.add(opcionModificarHorarios);
-
         opcionEstadisticas.setText("Ver estádisticas");
         menuOpciones.add(opcionEstadisticas);
 
@@ -1903,58 +1899,67 @@ public class DashboardAdmin extends javax.swing.JFrame {
     }//GEN-LAST:event_calendarioHorariosPropertyChange
 
     private void btnUInsertarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUInsertarActionPerformed
-        String name = txtLName.getText();
-        String location = txtLLocation.getText();
-        int capacity = Integer.parseInt(txtLCapacity.getText());
-        String type = cboLType.getSelectedItem().toString();
+        String username = txtUName.getText();
+        String password = new String(txtUPassword.getPassword());
+        String email = txtUMail.getText();
+        String role = cboURole.getSelectedItem().toString();
+        String department = cboUDepartment.getSelectedItem().toString();
 
-        String query = "INSERT INTO LABORATORY (name, location, capacity, type) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO USER (username, password, email, role, department) VALUES (?, ?, ?, ?, ?)";
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
             ps = conn.prepareStatement(query);
-            ps.setString(1, name);
-            ps.setString(2, location);
-            ps.setInt(3, capacity);
-            ps.setString(4, type);
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ps.setString(3, email);
+            ps.setString(4, role);
+            ps.setString(5, department);
             ps.executeUpdate();
 
             conn.close();
-            cargarLaboratoriosEnTabla();
-            limpiarCamposLaboratorio();
-            JOptionPane.showMessageDialog(this, "Laboratorio insertado exitosamente");
+            cargarUsuariosEnTabla();
+            limpiarCamposUsuario();
+            JOptionPane.showMessageDialog(this, "Usuario insertado exitosamente");
         } catch (Exception e) {
-            System.err.println("Error al insertar el laboratorio: " + e.getMessage());
+            System.err.println("Error al insertar el usuario: " + e.getMessage());
         }
     }//GEN-LAST:event_btnUInsertarActionPerformed
 
     private void btnUModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUModificarActionPerformed
-        int id = Integer.parseInt(txtLId.getText());
-        String name = txtLName.getText();
-        String location = txtLLocation.getText();
-        int capacity = Integer.parseInt(txtLCapacity.getText());
-        String type = cboLType.getSelectedItem().toString();
+        if(txtUId.getText().equals("")){
+            JOptionPane.showMessageDialog(null, "Debe seleccionar o buscar un usuario a modificar");
+        }
+        else{
+            int id = Integer.parseInt(txtUId.getText());
+            String username = txtUName.getText();
+            String password = new String(txtUPassword.getPassword());
+            String email = txtUMail.getText();
+            String role = cboURole.getSelectedItem().toString();
+            String department = cboUDepartment.getSelectedItem().toString();
 
-        String query = "UPDATE LABORATORY SET name = ?, location = ?, capacity = ?, type = ? WHERE id_lab = ?";
+            String query = "UPDATE USER SET username = ?, password = ?, email = ?, role = ?, department = ? WHERE id_user = ?";
 
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
-            ps = conn.prepareStatement(query);
-            ps.setString(1, name);
-            ps.setString(2, location);
-            ps.setInt(3, capacity);
-            ps.setString(4, type);
-            ps.setInt(5, id);
-            ps.executeUpdate();
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
+                ps = conn.prepareStatement(query);
+                ps.setString(1, username);
+                ps.setString(2, password);
+                ps.setString(3, email);
+                ps.setString(4, role);
+                ps.setString(5, department);
+                ps.setInt(6, id);
+                ps.executeUpdate();
 
-            conn.close();
-            cargarLaboratoriosEnTabla();
-            limpiarCamposLaboratorio();
-            JOptionPane.showMessageDialog(this, "Laboratorio modificado exitosamente");
-        } catch (Exception e) {
-            System.err.println("Error al modificar el laboratorio: " + e.getMessage());
+                conn.close();
+                cargarUsuariosEnTabla();
+                limpiarCamposUsuario();
+                JOptionPane.showMessageDialog(this, "Usuario modificado exitosamente");
+            } catch (Exception e) {
+                System.err.println("Error al modificar el usuario: " + e.getMessage());
+            }
         }
     }//GEN-LAST:event_btnUModificarActionPerformed
 
@@ -2718,7 +2723,6 @@ public class DashboardAdmin extends javax.swing.JFrame {
     private javax.swing.JMenuItem opcionEstadisticas;
     private javax.swing.JMenuItem opcionMenuCerrarSesion;
     private javax.swing.JMenuItem opcionMenuSalir;
-    private javax.swing.JMenuItem opcionModificarHorarios;
     private javax.swing.JMenuItem opcionModificarLaboratorios;
     private javax.swing.JMenuItem opcionModificarMaterial;
     private javax.swing.JMenuItem opcionModificarUsuarios;

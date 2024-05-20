@@ -1393,11 +1393,6 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="opcionModificarMaterialActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="opcionModificarHorarios">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Modificar Horarios"/>
-              </Properties>
-            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="opcionEstadisticas">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Ver est&#xe1;disticas"/>
