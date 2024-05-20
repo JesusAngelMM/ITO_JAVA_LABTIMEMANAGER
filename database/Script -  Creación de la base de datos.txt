@@ -1,0 +1,63 @@
+-- Creación de la base de datos
+CREATE DATABASE IF NOT EXISTS LabTimeManager;
+USE LabTimeManager;
+
+-- Creación de la tabla 'USER'
+CREATE TABLE IF NOT EXISTS `USER` (
+    id_user INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    role VARCHAR(50) NOT NULL,
+    department VARCHAR(100)
+);
+
+-- Creación de la tabla 'LABORATORY'
+CREATE TABLE IF NOT EXISTS `LABORATORY` (
+    id_lab INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    capacity INT NOT NULL,
+    type VARCHAR(50) NOT NULL
+);
+
+-- Creación de la tabla 'SCHEDULE'
+CREATE TABLE IF NOT EXISTS `SCHEDULE` (
+    id_schedule INT AUTO_INCREMENT PRIMARY KEY,
+    date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL
+);
+
+-- Creación de la tabla 'RESERVATION'
+CREATE TABLE IF NOT EXISTS `RESERVATION` (
+    id_reservation INT AUTO_INCREMENT PRIMARY KEY,
+    id_user INT NOT NULL,
+    id_lab INT NOT NULL,
+    id_schedule INT NOT NULL,
+    purpose VARCHAR(255) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    FOREIGN KEY (id_user) REFERENCES USER(id_user),
+    FOREIGN KEY (id_lab) REFERENCES LABORATORY(id_lab),
+    FOREIGN KEY (id_schedule) REFERENCES SCHEDULE(id_schedule)
+);
+
+-- Creación de la tabla 'MATERIAL'
+CREATE TABLE IF NOT EXISTS `MATERIAL` (
+    id_material INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    quantity INT NOT NULL,
+    id_lab INT NOT NULL,
+    FOREIGN KEY (id_lab) REFERENCES LABORATORY(id_lab)
+);
+CREATE TABLE IF NOT EXISTS `RESERVATION_MATERIAL` (
+    id_reservation INT NOT NULL,
+    id_material INT NOT NULL,
+    quantity INT NOT NULL,
+    FOREIGN KEY (id_reservation) REFERENCES RESERVATION(id_reservation),
+    FOREIGN KEY (id_material) REFERENCES MATERIAL(id_material),
+    PRIMARY KEY (id_reservation, id_material)
+);
+
+INSERT INTO MATERIAL (name, quantity, id_lab) VALUES ('Material Genérico', 9999, 1);  -- Asegúrate de que el id_lab 1 existe
