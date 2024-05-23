@@ -120,11 +120,12 @@ public class UserDashboard extends javax.swing.JFrame {
         DefaultTableModel modelo = (DefaultTableModel) tablaHorarios.getModel();
         modelo.setRowCount(0); // Limpiar el modelo de la tabla antes de agregar nuevas filas
 
-        String query = "SELECT R.id_reservation, L.name as lab_name, S.date, S.start_time, S.end_time, R.purpose, R.status, R.type " +
-                       "FROM RESERVATION R " +
-                       "JOIN LABORATORY L ON R.id_lab = L.id_lab " +
-                       "JOIN SCHEDULE S ON R.id_schedule = S.id_schedule " +
-                       "WHERE R.id_user = (SELECT id_user FROM USER WHERE username = ?)";
+        String query = "SELECT R.id_reservation, L.name as lab_name, S.date, S.start_time, S.end_time, R.purpose, R.status, R.type "
+                + "FROM RESERVATION R "
+                + "JOIN LABORATORY L ON R.id_lab = L.id_lab "
+                + "JOIN SCHEDULE S ON R.id_schedule = S.id_schedule "
+                + "WHERE R.id_user = (SELECT id_user FROM USER WHERE username = ?) "
+                + "ORDER BY L.name, S.date";
 
         String[] data = new String[8];
         try {
