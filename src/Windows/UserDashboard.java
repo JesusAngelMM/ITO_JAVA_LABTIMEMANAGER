@@ -354,6 +354,52 @@ public class UserDashboard extends javax.swing.JFrame {
         }
     }
     
+    private boolean validarHoras(String horaInicio, String horaFin) {
+        String[] horas = {"07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"};
+        int indexInicio = -1;
+        int indexFin = -1;
+
+        for (int i = 0; i < horas.length; i++) {
+            if (horaInicio.equals(horas[i])) {
+                indexInicio = i;
+            }
+            if (horaFin.equals(horas[i])) {
+                indexFin = i;
+            }
+        }
+
+        if (indexInicio == -1 || indexFin == -1) {
+            return false;
+        }
+
+        int diferencia = indexFin - indexInicio;
+        return diferencia > 0 && diferencia <= 2;
+    }
+
+    private void initValidationListeners() {
+        cboHorasI.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                validarSeleccionHoras();
+            }
+        });
+
+        cboHorasF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                validarSeleccionHoras();
+            }
+        });
+    }
+
+    private void validarSeleccionHoras() {
+        String horaInicio = cboHorasI.getSelectedItem().toString();
+        String horaFin = cboHorasF.getSelectedItem().toString();
+
+        if (!validarHoras(horaInicio, horaFin)) {
+            JOptionPane.showMessageDialog(this, "La hora de fin debe ser mayor que la hora de inicio y el rango máximo debe ser de 2 horas.", "Error", JOptionPane.ERROR_MESSAGE);
+            cboHorasF.setSelectedIndex(cboHorasI.getSelectedIndex() + 1);
+        }
+    }
+    
     
 
 
@@ -438,7 +484,7 @@ public class UserDashboard extends javax.swing.JFrame {
         jLabel19.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel19.setText("Tipo:");
 
-        cboHorasF.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00" }));
+        cboHorasF.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00" }));
         cboHorasF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cboHorasFActionPerformed(evt);
@@ -473,7 +519,7 @@ public class UserDashboard extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Material"
+                "Material", "Cantidad"
             }
         ));
         jScrollPane2.setViewportView(tablaMateriales);
@@ -912,6 +958,12 @@ public class UserDashboard extends javax.swing.JFrame {
             String status = "confirmed";
             String tipo = cboType.getSelectedItem().toString();
 
+            // Validar que la hora de fin sea mayor que la hora de inicio y que el rango sea máximo de 2 horas
+            if (!validarHoras(horaInicio, horaFin)) {
+                JOptionPane.showMessageDialog(this, "La hora de fin debe ser mayor que la hora de inicio y el rango máximo debe ser de 2 horas.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             // Obtener IDs de las tablas relacionadas
             int idLab = obtenerIdLaboratorio(laboratorio);
 
@@ -943,12 +995,14 @@ public class UserDashboard extends javax.swing.JFrame {
 
             // Insertar los materiales asociados a la reservación en la tabla RESERVATION_MATERIAL
             for (int i = 0; i < materialModel.getRowCount(); i++) {
-                String material = materialModel.getValueAt(i, 0).toString();
+                String material = (String) materialModel.getValueAt(i, 0);
+                String quantityStr = materialModel.getValueAt(i, 1) != null ? materialModel.getValueAt(i, 1).toString() : "0";
                 int idMaterial = obtenerIdMaterial(material);
+                int quantity = Integer.parseInt(quantityStr); // Leer la cantidad de materiales
 
                 // Verificar si el material ya está asociado a la reservación para evitar duplicados
                 if (!existeReservaMaterial(idReservation, idMaterial)) {
-                    insertarReservationMaterial(idReservation, idMaterial, 1); // Puedes ajustar la cantidad según sea necesario
+                    insertarReservationMaterial(idReservation, idMaterial, quantity); // Ajustar la cantidad según sea necesario
                 }
             }
 
@@ -959,9 +1013,15 @@ public class UserDashboard extends javax.swing.JFrame {
             System.err.println("Error al guardar la reservación: " + e.getMessage());
         } finally {
             try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (conn != null) conn.close();
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
             } catch (SQLException e) {
                 System.err.println("Error al cerrar la conexión: " + e.getMessage());
             }
