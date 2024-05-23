@@ -674,6 +674,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         btnActualizarReservacion = new javax.swing.JButton();
         jLabel34 = new javax.swing.JLabel();
         btnBorrarReservacion = new javax.swing.JButton();
+        cboOpcionesBusquedaR = new javax.swing.JComboBox<>();
         ModifyUsers = new javax.swing.JDialog();
         panelModifyUsers = new javax.swing.JPanel();
         txtUMail = new javax.swing.JTextField();
@@ -696,6 +697,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         cboURole = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaU = new javax.swing.JTable();
+        cboOpcionesBusquedaU = new javax.swing.JComboBox<>();
         ModifyLabs = new javax.swing.JDialog();
         panelModifyLabs = new javax.swing.JPanel();
         txtLCapacity = new javax.swing.JTextField();
@@ -716,6 +718,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         jScrollPane7 = new javax.swing.JScrollPane();
         tablaL = new javax.swing.JTable();
         txtLLocation = new javax.swing.JTextField();
+        cboOpcionesBusquedaL = new javax.swing.JComboBox<>();
         ModifyMaterials = new javax.swing.JDialog();
         panelModifyMaterials = new javax.swing.JPanel();
         txtMIdLab = new javax.swing.JTextField();
@@ -734,6 +737,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         jScrollPane6 = new javax.swing.JScrollPane();
         tablaM = new javax.swing.JTable();
         txtMQuantity = new javax.swing.JTextField();
+        cboOpcionesBusquedaM = new javax.swing.JComboBox<>();
         Statitics = new javax.swing.JDialog();
         grupoBotonesAdmin = new javax.swing.ButtonGroup();
         panelBienvenida = new javax.swing.JPanel();
@@ -834,7 +838,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel11.setText("Crear una nueva reservación");
+        jLabel11.setText("Modificar Reservación");
 
         jLabel12.setText("Guardar");
 
@@ -909,6 +913,8 @@ public class AdminDashboard extends javax.swing.JFrame {
             }
         });
 
+        cboOpcionesBusquedaR.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Id" }));
+
         javax.swing.GroupLayout panelReservationLayout = new javax.swing.GroupLayout(panelReservation);
         panelReservation.setLayout(panelReservationLayout);
         panelReservationLayout.setHorizontalGroup(
@@ -920,6 +926,8 @@ public class AdminDashboard extends javax.swing.JFrame {
                         .addComponent(jLabel11)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(txtIdReservacion, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(cboOpcionesBusquedaR, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(btnBuscarReservacion))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReservationLayout.createSequentialGroup()
@@ -990,7 +998,8 @@ public class AdminDashboard extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReservationLayout.createSequentialGroup()
                         .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txtIdReservacion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnBuscarReservacion))
+                            .addComponent(btnBuscarReservacion)
+                            .addComponent(cboOpcionesBusquedaR, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)))
                 .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblSelectLaboratorio)
@@ -1136,6 +1145,8 @@ public class AdminDashboard extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(tablaU);
 
+        cboOpcionesBusquedaU.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ID", "Nombre", "Correo" }));
+
         javax.swing.GroupLayout panelModifyUsersLayout = new javax.swing.GroupLayout(panelModifyUsers);
         panelModifyUsers.setLayout(panelModifyUsersLayout);
         panelModifyUsersLayout.setHorizontalGroup(
@@ -1177,9 +1188,11 @@ public class AdminDashboard extends javax.swing.JFrame {
                                 .addComponent(btnUEliminar)
                                 .addGap(30, 30, 30)
                                 .addComponent(btnULimpiar))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelModifyUsersLayout.createSequentialGroup()
-                                .addComponent(txtUId, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
+                            .addGroup(panelModifyUsersLayout.createSequentialGroup()
+                                .addComponent(txtUId, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(12, 12, 12)
+                                .addComponent(cboOpcionesBusquedaU, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(13, 13, 13)
                                 .addComponent(btnUBuscar))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 435, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(20, Short.MAX_VALUE))
@@ -1192,7 +1205,8 @@ public class AdminDashboard extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txtUId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnUBuscar)))
+                            .addComponent(btnUBuscar)
+                            .addComponent(cboOpcionesBusquedaU, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(panelModifyUsersLayout.createSequentialGroup()
                         .addGap(37, 37, 37)
                         .addComponent(jLabel21)))
@@ -1314,6 +1328,8 @@ public class AdminDashboard extends javax.swing.JFrame {
         ));
         jScrollPane7.setViewportView(tablaL);
 
+        cboOpcionesBusquedaL.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ID", "Nombre" }));
+
         javax.swing.GroupLayout panelModifyLabsLayout = new javax.swing.GroupLayout(panelModifyLabs);
         panelModifyLabs.setLayout(panelModifyLabsLayout);
         panelModifyLabsLayout.setHorizontalGroup(
@@ -1325,7 +1341,7 @@ public class AdminDashboard extends javax.swing.JFrame {
                         .addComponent(btnLEliminar)
                         .addGap(18, 18, 18)
                         .addComponent(btnLLimpiar))
-                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelModifyLabsLayout.createSequentialGroup()
                         .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(panelModifyLabsLayout.createSequentialGroup()
                                 .addGap(29, 29, 29)
@@ -1352,16 +1368,19 @@ public class AdminDashboard extends javax.swing.JFrame {
                                         .addComponent(btnLModificar))))
                             .addGroup(panelModifyLabsLayout.createSequentialGroup()
                                 .addGap(187, 187, 187)
-                                .addComponent(jLabel26)))
+                                .addComponent(jLabel26))
+                            .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                                .addGap(66, 66, 66)
+                                .addComponent(jLabel27)))
                         .addGap(18, 18, 18)
-                        .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelModifyLabsLayout.createSequentialGroup()
-                        .addGap(66, 66, 66)
-                        .addComponent(jLabel27)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(txtLId, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnLBuscar)))
+                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                                .addComponent(txtLId, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(cboOpcionesBusquedaL, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnLBuscar))
+                            .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE))))
                 .addGap(19, 19, 19))
         );
         panelModifyLabsLayout.setVerticalGroup(
@@ -1372,7 +1391,8 @@ public class AdminDashboard extends javax.swing.JFrame {
                         .addGap(17, 17, 17)
                         .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnLBuscar)
-                            .addComponent(txtLId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(txtLId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cboOpcionesBusquedaL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(panelModifyLabsLayout.createSequentialGroup()
                         .addGap(37, 37, 37)
                         .addComponent(jLabel27)))
@@ -1459,7 +1479,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         jLabel31.setText("Datos");
         panelModifyMaterials.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(187, 86, -1, -1));
         panelModifyMaterials.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(391, 37, -1, -1));
-        panelModifyMaterials.add(txtMId, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 20, 72, -1));
+        panelModifyMaterials.add(txtMId, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 20, 120, -1));
 
         btnMBuscar.setText("Buscar");
         btnMBuscar.addActionListener(new java.awt.event.ActionListener() {
@@ -1500,6 +1520,9 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         panelModifyMaterials.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 100, 328, 210));
         panelModifyMaterials.add(txtMQuantity, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 150, 290, -1));
+
+        cboOpcionesBusquedaM.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ID", "Nombre" }));
+        panelModifyMaterials.add(cboOpcionesBusquedaM, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 20, 110, -1));
 
         javax.swing.GroupLayout ModifyMaterialsLayout = new javax.swing.GroupLayout(ModifyMaterials.getContentPane());
         ModifyMaterials.getContentPane().setLayout(ModifyMaterialsLayout);
@@ -2053,25 +2076,37 @@ public class AdminDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_btnULimpiarActionPerformed
 
     private void btnUBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUBuscarActionPerformed
-        String idOrUsername = txtUId.getText().trim();
-        boolean isNumeric = idOrUsername.matches("\\d+"); // Verifica si la entrada es un número (ID)
+        String searchValue = txtUId.getText().trim();
+        String searchOption = cboOpcionesBusquedaU.getSelectedItem().toString();
 
-        String query;
-        if (isNumeric) {
-            query = "SELECT id_user, username, password, email, role, department FROM USER WHERE id_user = ?";
-        } else {
-            query = "SELECT id_user, username, password, email, role, department FROM USER WHERE username = ?";
+        String query = "";
+
+        switch (searchOption) {
+            case "ID":
+                query = "SELECT id_user, username, password, email, role, department FROM USER WHERE id_user = ?";
+                break;
+            case "Nombre":
+                query = "SELECT id_user, username, password, email, role, department FROM USER WHERE username = ?";
+                break;
+            case "Correo":
+                query = "SELECT id_user, username, password, email, role, department FROM USER WHERE email = ?";
+                break;
+            default:
+                JOptionPane.showMessageDialog(this, "Opción de búsqueda no válida", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
         }
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
             ps = conn.prepareStatement(query);
-            if (isNumeric) {
-                ps.setInt(1, Integer.parseInt(idOrUsername));
+
+            if (searchOption.equals("ID")) {
+                ps.setInt(1, Integer.parseInt(searchValue));
             } else {
-                ps.setString(1, idOrUsername);
+                ps.setString(1, searchValue);
             }
+
             rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -2159,25 +2194,34 @@ public class AdminDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLLimpiarActionPerformed
 
     private void btnLBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLBuscarActionPerformed
-        String idOrName = txtLId.getText().trim();
-        boolean isNumeric = idOrName.matches("\\d+"); // Verifica si la entrada es un número (ID)
+        String searchValue = txtLId.getText().trim();
+        String searchOption = cboOpcionesBusquedaL.getSelectedItem().toString();
 
-        String query;
-        if (isNumeric) {
-            query = "SELECT id_lab, name, location, capacity, type FROM LABORATORY WHERE id_lab = ?";
-        } else {
-            query = "SELECT id_lab, name, location, capacity, type FROM LABORATORY WHERE name = ?";
+        String query = "";
+
+        switch (searchOption) {
+            case "ID":
+                query = "SELECT id_lab, name, location, capacity, type FROM LABORATORY WHERE id_lab = ?";
+                break;
+            case "Nombre":
+                query = "SELECT id_lab, name, location, capacity, type FROM LABORATORY WHERE name = ?";
+                break;
+            default:
+                JOptionPane.showMessageDialog(this, "Opción de búsqueda no válida", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
         }
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
             ps = conn.prepareStatement(query);
-            if (isNumeric) {
-                ps.setInt(1, Integer.parseInt(idOrName));
+
+            if (searchOption.equals("ID")) {
+                ps.setInt(1, Integer.parseInt(searchValue));
             } else {
-                ps.setString(1, idOrName);
+                ps.setString(1, searchValue);
             }
+
             rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -2275,25 +2319,34 @@ public class AdminDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMLimpiarActionPerformed
 
     private void btnMBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMBuscarActionPerformed
-        String idOrName = txtMId.getText().trim();
-        boolean isNumeric = idOrName.matches("\\d+"); // Verifica si la entrada es un número (ID)
+        String searchValue = txtMId.getText().trim();
+        String searchOption = cboOpcionesBusquedaM.getSelectedItem().toString();
 
-        String query;
-        if (isNumeric) {
-            query = "SELECT id_material, name, quantity, id_lab FROM MATERIAL WHERE id_material = ?";
-        } else {
-            query = "SELECT id_material, name, quantity, id_lab FROM MATERIAL WHERE name = ?";
+        String query = "";
+
+        switch (searchOption) {
+            case "ID":
+                query = "SELECT id_material, name, quantity, id_lab FROM MATERIAL WHERE id_material = ?";
+                break;
+            case "Nombre":
+                query = "SELECT id_material, name, quantity, id_lab FROM MATERIAL WHERE name = ?";
+                break;
+            default:
+                JOptionPane.showMessageDialog(this, "Opción de búsqueda no válida", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
         }
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
             ps = conn.prepareStatement(query);
-            if (isNumeric) {
-                ps.setInt(1, Integer.parseInt(idOrName));
+
+            if (searchOption.equals("ID")) {
+                ps.setInt(1, Integer.parseInt(searchValue));
             } else {
-                ps.setString(1, idOrName);
+                ps.setString(1, searchValue);
             }
+
             rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -2784,6 +2837,10 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cboLType;
     private javax.swing.JComboBox<String> cboLaboratorios;
     private javax.swing.JComboBox<String> cboMaterial;
+    private javax.swing.JComboBox<String> cboOpcionesBusquedaL;
+    private javax.swing.JComboBox<String> cboOpcionesBusquedaM;
+    private javax.swing.JComboBox<String> cboOpcionesBusquedaR;
+    private javax.swing.JComboBox<String> cboOpcionesBusquedaU;
     private javax.swing.JComboBox<String> cboType;
     private javax.swing.JComboBox<String> cboUDepartment;
     private javax.swing.JComboBox<String> cboURole;
