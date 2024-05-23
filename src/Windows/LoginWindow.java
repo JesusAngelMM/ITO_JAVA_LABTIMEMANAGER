@@ -1,5 +1,6 @@
 package Windows;
 
+import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -207,7 +208,7 @@ public class LoginWindow extends javax.swing.JFrame {
                 java.util.logging.Logger.getLogger(LoginWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
             }
             //</editor-fold>
-            UIManager.setLookAndFeel(new FlatLightLaf());
+            UIManager.setLookAndFeel(new FlatDarkLaf());
             /* Create and display the form */
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
