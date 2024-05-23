@@ -326,28 +326,35 @@ public class UserDashboard extends javax.swing.JFrame {
         DefaultTableModel modelo = (DefaultTableModel) tablaHorariosSemana.getModel();
         modelo.setRowCount(0); // Limpiar la tabla antes de agregar nuevas filas
 
-        String[] horas = { "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00" };
+        String[] horas = {"07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"};
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
             for (int i = 0; i < horas.length - 1; i++) {
                 String horaInicio = horas[i];
                 String horaFin = horas[i + 1];
-                String query = "SELECT COUNT(*) FROM RESERVATION R " +
-                               "JOIN SCHEDULE S ON R.id_schedule = S.id_schedule " +
-                               "WHERE S.date = ? AND S.start_time = ? AND S.end_time = ?";
+                String query = "SELECT L.name AS lab_name "
+                        + "FROM RESERVATION R "
+                        + "JOIN SCHEDULE S ON R.id_schedule = S.id_schedule "
+                        + "JOIN LABORATORY L ON R.id_lab = L.id_lab "
+                        + "WHERE S.date = ? AND S.start_time = ? AND S.end_time = ?";
                 ps = conn.prepareStatement(query);
                 ps.setString(1, selectedDate);
                 ps.setString(2, horaInicio);
                 ps.setString(3, horaFin);
                 rs = ps.executeQuery();
 
-                String estatus = "Libre";
-                if (rs.next() && rs.getInt(1) > 0) {
-                    estatus = "Ocupado";
+                boolean isOcupado = false;
+
+                while (rs.next()) {
+                    String labName = rs.getString("lab_name");
+                    modelo.addRow(new Object[]{horaInicio, horaFin, "Ocupado", labName});
+                    isOcupado = true;
                 }
 
-                modelo.addRow(new Object[]{horaInicio, horaFin, estatus});
+                if (!isOcupado) {
+                    modelo.addRow(new Object[]{horaInicio, horaFin, "Libre", ""});
+                }
             }
             conn.close();
         } catch (Exception e) {
@@ -582,7 +589,7 @@ public class UserDashboard extends javax.swing.JFrame {
         txtPurpose.setRows(5);
         jScrollPane3.setViewportView(txtPurpose);
 
-        cboLaboratorios.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Laboratorio de Fisicoquímica", "Laboratorio de Ing. Civil", "Laboratorio de Ing. Eléctrica", "Laboratorio de Ing. Industrial", "Laboratorio de Ing. Química e Ing. Mecánica Pesada", "Laboratorio de Simulación" }));
+        cboLaboratorios.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Laboratorio de Fisicoquímica", "Laboratorio de Ing. Civil", "Laboratorio de Ing. Eléctrica", "Laboratorio de Ing. Industrial", "Ingenieria en Sistemas", "Laboratorio de Ing. Mecatronica" }));
 
         lblDate.setText("0000-00-00");
 
@@ -716,13 +723,13 @@ public class UserDashboard extends javax.swing.JFrame {
 
         tablaHorariosSemana.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "Hora de inicio", "Hora de finalización", "Estatus"
+                "Hora de inicio", "Hora de finalización", "Estatus", "Laboratorio"
             }
         ));
         jScrollPane4.setViewportView(tablaHorariosSemana);
