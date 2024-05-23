@@ -430,13 +430,10 @@ public class UserDashboard extends javax.swing.JFrame {
         btnExportarPDF = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
         lblSelectLaboratorio = new javax.swing.JLabel();
         lblSelectMateriales = new javax.swing.JLabel();
         btnEliminarElemento = new javax.swing.JButton();
-        jLabel9 = new javax.swing.JLabel();
         cboMaterial = new javax.swing.JComboBox<>();
         calendario = new com.toedter.calendar.JCalendar();
         lblSelectHora = new javax.swing.JLabel();
@@ -482,15 +479,19 @@ public class UserDashboard extends javax.swing.JFrame {
         Reservation.setTitle("Crear una reservación");
         Reservation.setResizable(false);
 
+        panelReservation.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
         btnAgregarMaterial.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/aceptar.png"))); // NOI18N
         btnAgregarMaterial.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAgregarMaterialActionPerformed(evt);
             }
         });
+        panelReservation.add(btnAgregarMaterial, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 120, 30, -1));
 
         jLabel19.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel19.setText("Tipo:");
+        panelReservation.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 350, -1, -1));
 
         cboHorasF.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00" }));
         cboHorasF.addActionListener(new java.awt.event.ActionListener() {
@@ -498,8 +499,10 @@ public class UserDashboard extends javax.swing.JFrame {
                 cboHorasFActionPerformed(evt);
             }
         });
+        panelReservation.add(cboHorasF, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 350, -1, -1));
 
         cboType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Práctica", "Clase", "Recorrido", "Mantenimiento" }));
+        panelReservation.add(cboType, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 350, 290, -1));
 
         cboHorasI.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00" }));
         cboHorasI.addActionListener(new java.awt.event.ActionListener() {
@@ -507,20 +510,25 @@ public class UserDashboard extends javax.swing.JFrame {
                 cboHorasIActionPerformed(evt);
             }
         });
+        panelReservation.add(cboHorasI, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 350, -1, -1));
 
-        btnHacerReservacion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/guardar.png"))); // NOI18N
+        btnHacerReservacion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/guardarRegistro.png"))); // NOI18N
+        btnHacerReservacion.setText("Guardar");
         btnHacerReservacion.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnHacerReservacionActionPerformed(evt);
             }
         });
+        panelReservation.add(btnHacerReservacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 420, 100, -1));
 
         btnCancelar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/cerrar.png"))); // NOI18N
+        btnCancelar.setText("Cancelar");
         btnCancelar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCancelarActionPerformed(evt);
             }
         });
+        panelReservation.add(btnCancelar, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 420, 100, -1));
 
         tablaMateriales.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -532,32 +540,37 @@ public class UserDashboard extends javax.swing.JFrame {
         ));
         jScrollPane2.setViewportView(tablaMateriales);
 
+        panelReservation.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 160, 330, 143));
+
         btnExportarPDF.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/exportar_pdf.png"))); // NOI18N
+        btnExportarPDF.setText("Exportar");
         btnExportarPDF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnExportarPDFActionPerformed(evt);
             }
         });
+        panelReservation.add(btnExportarPDF, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 420, 110, -1));
 
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel10.setText("Proposito:");
+        panelReservation.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 380, -1, -1));
 
         jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel11.setText("Crear una nueva reservación");
-
-        jLabel12.setText("Guardar");
+        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/registro.png"))); // NOI18N
+        panelReservation.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 0, -1, -1));
 
         jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel13.setText("a");
-
-        jLabel14.setText("Exportar");
+        panelReservation.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 350, 26, -1));
 
         lblSelectLaboratorio.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         lblSelectLaboratorio.setText("Seleccionar laboratorio:");
+        panelReservation.add(lblSelectLaboratorio, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, -1, -1));
 
         lblSelectMateriales.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         lblSelectMateriales.setText("Seleccionar material:");
+        panelReservation.add(lblSelectMateriales, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 100, -1, -1));
 
         btnEliminarElemento.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/papelera.png"))); // NOI18N
         btnEliminarElemento.addActionListener(new java.awt.event.ActionListener() {
@@ -565,8 +578,7 @@ public class UserDashboard extends javax.swing.JFrame {
                 btnEliminarElementoActionPerformed(evt);
             }
         });
-
-        jLabel9.setText("Cancelar");
+        panelReservation.add(btnEliminarElemento, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 120, 30, -1));
 
         cboMaterial.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         cboMaterial.addActionListener(new java.awt.event.ActionListener() {
@@ -574,144 +586,45 @@ public class UserDashboard extends javax.swing.JFrame {
                 cboMaterialActionPerformed(evt);
             }
         });
+        panelReservation.add(cboMaterial, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 120, 220, -1));
 
-        calendario.setPreferredSize(new java.awt.Dimension(250, 185));
+        calendario.setPreferredSize(new java.awt.Dimension(300, 222));
         calendario.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 calendarioPropertyChange(evt);
             }
         });
+        panelReservation.add(calendario, new org.netbeans.lib.awtextra.AbsoluteConstraints(15, 124, -1, -1));
 
         lblSelectHora.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         lblSelectHora.setText("Seleccionar Fecha:");
+        panelReservation.add(lblSelectHora, new org.netbeans.lib.awtextra.AbsoluteConstraints(15, 102, -1, -1));
 
         txtPurpose.setColumns(20);
         txtPurpose.setRows(5);
         jScrollPane3.setViewportView(txtPurpose);
 
+        panelReservation.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 410, 300, 40));
+
         cboLaboratorios.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Laboratorio de Fisicoquímica", "Laboratorio de Ing. Civil", "Laboratorio de Ing. Eléctrica", "Laboratorio de Ing. Industrial", "Ingenieria en Sistemas", "Laboratorio de Ing. Mecatronica" }));
+        panelReservation.add(cboLaboratorios, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 70, 550, -1));
 
         lblDate.setText("0000-00-00");
-
-        javax.swing.GroupLayout panelReservationLayout = new javax.swing.GroupLayout(panelReservation);
-        panelReservation.setLayout(panelReservationLayout);
-        panelReservationLayout.setHorizontalGroup(
-            panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelReservationLayout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelReservationLayout.createSequentialGroup()
-                        .addComponent(jLabel11)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(panelReservationLayout.createSequentialGroup()
-                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReservationLayout.createSequentialGroup()
-                                .addComponent(lblSelectLaboratorio)
-                                .addGap(18, 18, 18)
-                                .addComponent(cboLaboratorios, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReservationLayout.createSequentialGroup()
-                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel19)
-                                    .addComponent(cboType, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(panelReservationLayout.createSequentialGroup()
-                                        .addComponent(cboHorasI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(5, 5, 5)
-                                        .addComponent(cboHorasF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(lblDate, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(calendario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(lblSelectHora)
-                                    .addGroup(panelReservationLayout.createSequentialGroup()
-                                        .addComponent(jLabel12)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(btnHacerReservacion, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(jLabel14)
-                                        .addGap(12, 12, 12)
-                                        .addComponent(btnExportarPDF, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(30, 30, 30)
-                                        .addComponent(jLabel9)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 156, Short.MAX_VALUE)
-                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                                    .addGroup(panelReservationLayout.createSequentialGroup()
-                                        .addComponent(cboMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(36, 36, 36)
-                                        .addComponent(btnAgregarMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(btnEliminarElemento, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(lblSelectMateriales, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel10, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.LEADING))))
-                        .addGap(27, 27, 27))))
-        );
-        panelReservationLayout.setVerticalGroup(
-            panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReservationLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel11)
-                .addGap(29, 29, 29)
-                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblSelectLaboratorio)
-                    .addComponent(cboLaboratorios, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(42, 42, 42)
-                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelReservationLayout.createSequentialGroup()
-                        .addComponent(lblSelectHora)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(calendario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblDate, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(cboHorasI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(cboHorasF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel13)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel19)
-                        .addGap(12, 12, 12)
-                        .addComponent(cboType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnExportarPDF)
-                            .addComponent(jLabel9)
-                            .addComponent(jLabel12)
-                            .addComponent(btnHacerReservacion)
-                            .addComponent(btnCancelar)
-                            .addComponent(jLabel14))
-                        .addGap(17, 17, 17))
-                    .addGroup(panelReservationLayout.createSequentialGroup()
-                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(panelReservationLayout.createSequentialGroup()
-                                .addComponent(lblSelectMateriales)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cboMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(btnEliminarElemento)
-                            .addComponent(btnAgregarMaterial))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel10)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))))
-        );
+        panelReservation.add(lblDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 350, 72, 19));
 
         javax.swing.GroupLayout ReservationLayout = new javax.swing.GroupLayout(Reservation.getContentPane());
         Reservation.getContentPane().setLayout(ReservationLayout);
         ReservationLayout.setHorizontalGroup(
             ReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelReservation, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(ReservationLayout.createSequentialGroup()
+                .addComponent(panelReservation, javax.swing.GroupLayout.PREFERRED_SIZE, 730, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         ReservationLayout.setVerticalGroup(
             ReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(ReservationLayout.createSequentialGroup()
                 .addComponent(panelReservation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 6, Short.MAX_VALUE))
+                .addGap(0, 23, Short.MAX_VALUE))
         );
 
         Schedules.setTitle("Ver horarios");
@@ -767,6 +680,7 @@ public class UserDashboard extends javax.swing.JFrame {
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Panel de Usuario");
 
         panelPadre.setLayout(new javax.swing.BoxLayout(panelPadre, javax.swing.BoxLayout.Y_AXIS));
 
@@ -1060,7 +974,7 @@ public class UserDashboard extends javax.swing.JFrame {
 
         // Mostrar el diálogo de reservación
         Reservation.setVisible(true);
-        Reservation.setSize(780, 600);
+        Reservation.setSize(740, 500);
         Reservation.setLocationRelativeTo(this);
     }//GEN-LAST:event_opcionAgregarReservacionActionPerformed
 
@@ -1169,7 +1083,7 @@ public class UserDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_calendarioPropertyChange
 
     private void opcionVerReservacionesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionVerReservacionesActionPerformed
-        Schedules.setSize(860,260);
+        Schedules.setSize(795,260);
         Schedules.setVisible(true);
         Schedules.setLocationRelativeTo(null);
     }//GEN-LAST:event_opcionVerReservacionesActionPerformed
@@ -1284,16 +1198,13 @@ public class UserDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
