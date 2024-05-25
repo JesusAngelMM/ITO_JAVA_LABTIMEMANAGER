@@ -1516,6 +1516,9 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Ver est&#xe1;disticas"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="opcionEstadisticasActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
