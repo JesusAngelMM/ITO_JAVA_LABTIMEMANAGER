@@ -1632,6 +1632,11 @@ public class AdminDashboard extends javax.swing.JFrame {
         menuOpciones.add(opcionModificarMaterial);
 
         opcionEstadisticas.setText("Ver estádisticas");
+        opcionEstadisticas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                opcionEstadisticasActionPerformed(evt);
+            }
+        });
         menuOpciones.add(opcionEstadisticas);
 
         menuBarraUsuario.add(menuOpciones);
@@ -1789,6 +1794,8 @@ public class AdminDashboard extends javax.swing.JFrame {
         cboHorasF.setSelectedIndex(0);
         cboType.setSelectedIndex(0);
         lblDate.setText("");
+        txtPurpose.setText("");
+        txtIdReservacion.setText("");
         txtPurpose.setText("");
         DefaultTableModel materialModel = (DefaultTableModel) tablaMateriales.getModel();
         materialModel.setRowCount(0);
@@ -2126,7 +2133,8 @@ public class AdminDashboard extends javax.swing.JFrame {
                 query = "SELECT id_lab, name, location, capacity, type FROM LABORATORY WHERE id_lab = ?";
                 break;
             case "Nombre":
-                query = "SELECT id_lab, name, location, capacity, type FROM LABORATORY WHERE name = ?";
+                query = "SELECT id_lab, name, location, capacity, type FROM LABORATORY WHERE name LIKE ?";
+                searchValue = "%" + searchValue + "%"; // Añadir comodines para permitir búsqueda parcial
                 break;
             default:
                 JOptionPane.showMessageDialog(this, "Opción de búsqueda no válida", "Error", JOptionPane.ERROR_MESSAGE);
@@ -2251,7 +2259,8 @@ public class AdminDashboard extends javax.swing.JFrame {
                 query = "SELECT id_material, name, quantity, id_lab FROM MATERIAL WHERE id_material = ?";
                 break;
             case "Nombre":
-                query = "SELECT id_material, name, quantity, id_lab FROM MATERIAL WHERE name = ?";
+                query = "SELECT id_material, name, quantity, id_lab FROM MATERIAL WHERE name LIKE ?";
+                searchValue = "%" + searchValue + "%"; // Añadir comodines para permitir búsqueda parcial
                 break;
             default:
                 JOptionPane.showMessageDialog(this, "Opción de búsqueda no válida", "Error", JOptionPane.ERROR_MESSAGE);
@@ -2292,6 +2301,13 @@ public class AdminDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMBuscarActionPerformed
 
     private void opcionModificarUsuariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionModificarUsuariosActionPerformed
+        txtUId.setText("");
+        txtUName.setText("");
+        txtUPassword.setText("");
+        txtUMail.setText("");
+        cboURole.setSelectedIndex(0);
+        cboUDepartment.setSelectedIndex(0);
+        
         cargarUsuariosEnTabla();
         ModifyUsers.setSize(890, 430);
         ModifyUsers.setLocationRelativeTo(null);
@@ -2372,6 +2388,11 @@ public class AdminDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMEliminarActionPerformed
 
     private void opcionModificarMaterialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionModificarMaterialActionPerformed
+        txtMId.setText("");
+        txtMName.setText("");
+        txtMQuantity.setText("");
+        txtMId.setText("");
+        
         cargarMaterialesEnTabla();
         ModifyMaterials.setSize(780, 380);
         ModifyMaterials.setLocationRelativeTo(null);
@@ -2379,6 +2400,12 @@ public class AdminDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_opcionModificarMaterialActionPerformed
 
     private void opcionModificarLaboratoriosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionModificarLaboratoriosActionPerformed
+        txtLId.setText("");
+        txtLCapacity.setText("");
+        txtLLocation.setText("");
+        txtLName.setText("");
+        cboLType.setSelectedIndex(0);
+        
         cargarLaboratoriosEnTabla();
         ModifyLabs.setSize(880, 370);
         ModifyLabs.setLocationRelativeTo(null);
@@ -2671,6 +2698,10 @@ public class AdminDashboard extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }//GEN-LAST:event_opcionOscuroActionPerformed
+
+    private void opcionEstadisticasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionEstadisticasActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_opcionEstadisticasActionPerformed
     
     /**
      * @param args the command line arguments
