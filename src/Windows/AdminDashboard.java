@@ -669,7 +669,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         btnBuscarReservacion = new javax.swing.JButton();
         btnActualizarReservacion = new javax.swing.JButton();
         btnBorrarReservacion = new javax.swing.JButton();
-        cboOpcionesBusquedaR = new javax.swing.JComboBox<>();
+        jLabel9 = new javax.swing.JLabel();
         ModifyUsers = new javax.swing.JDialog();
         panelModifyUsers = new javax.swing.JPanel();
         txtUMail = new javax.swing.JTextField();
@@ -937,8 +937,9 @@ public class AdminDashboard extends javax.swing.JFrame {
         });
         panelReservation.add(btnBorrarReservacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 430, -1, -1));
 
-        cboOpcionesBusquedaR.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Id" }));
-        panelReservation.add(cboOpcionesBusquedaR, new org.netbeans.lib.awtextra.AbsoluteConstraints(493, 19, 100, -1));
+        jLabel9.setText("ID");
+        jLabel9.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+        panelReservation.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 20, 80, 20));
 
         javax.swing.GroupLayout ReservationLayout = new javax.swing.GroupLayout(Reservation.getContentPane());
         Reservation.getContentPane().setLayout(ReservationLayout);
@@ -2760,7 +2761,6 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cboMaterial;
     private javax.swing.JComboBox<String> cboOpcionesBusquedaL;
     private javax.swing.JComboBox<String> cboOpcionesBusquedaM;
-    private javax.swing.JComboBox<String> cboOpcionesBusquedaR;
     private javax.swing.JComboBox<String> cboOpcionesBusquedaU;
     private javax.swing.JComboBox<String> cboType;
     private javax.swing.JComboBox<String> cboUDepartment;
@@ -2798,6 +2798,7 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
