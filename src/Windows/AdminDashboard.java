@@ -29,15 +29,18 @@ public class AdminDashboard extends javax.swing.JFrame {
 
     String nombre_usuario;
     
-    public static final String URL = "jdbc:mysql://localhost:3306/labtimemanager?useTimeZone=true&serverTimezone=UTC&autoReconnect=true&useSSL=false";
-    public static final String usuario = "root";
-    public static final String contrasena = "password";
+    private static String URL;
+    private static String usuario;
+    private static String contrasena;
+    private static final String PROPERTIES_FILE_PATH = "config.properties";
+    
     PreparedStatement ps;
     ResultSet rs;
     
     public AdminDashboard(String nombre_usuario) {
         this.nombre_usuario = nombre_usuario;
         initComponents();
+        loadProperties();
         txtBievenida.setText("!Bienvenido " + nombre_usuario + "!");
         mostrarEstatus();
         rellenarComboBoxMateriales();
@@ -45,6 +48,13 @@ public class AdminDashboard extends javax.swing.JFrame {
         agregarListenerTablaM();  // Listener para la tabla de materiales
         agregarListenerTablaL(); // Añadir el listener a la tabla de laboratorios
         agregarHorasCombo();
+    }
+    
+    private void loadProperties() {
+        ConfigLoader configLoader = new ConfigLoader(PROPERTIES_FILE_PATH);
+        URL = configLoader.getProperty("db.url");
+        usuario = configLoader.getProperty("db.user");
+        contrasena = configLoader.getProperty("db.password");
     }
 
     private void mostrarEstatus() {
@@ -906,7 +916,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         lblDate.setText("0000-00-00");
         panelReservation.add(lblDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 370, 72, 19));
 
-        cboLaboratorios.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Laboratorio de Fïsica", "Laboratorio de Ing. Química", "Laboratorio de Ing. Civil", "Laboratorio de Ing. Eléctrica", "Laboratorio de Ing. Industrial", "Laboratorio de Ing. en Sistemas Computacionales", "Laboratorio de Ing. Mecatrónica", "Laboratorio de Ing. Electrónica" }));
+        cboLaboratorios.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccionar", "Laboratorio de Fïsica", "Laboratorio de Ing. Química", "Laboratorio de Ing. Civil", "Laboratorio de Ing. Eléctrica", "Laboratorio de Ing. Industrial", "Laboratorio de Ing. en Sistemas Computacionales", "Laboratorio de Ing. Mecatrónica", "Laboratorio de Ing. Electrónica" }));
         panelReservation.add(cboLaboratorios, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 80, 532, -1));
         panelReservation.add(txtIdReservacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(395, 19, 80, -1));
 
