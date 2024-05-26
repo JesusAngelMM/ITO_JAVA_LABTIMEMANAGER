@@ -48,6 +48,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         agregarListenerTablaM();  // Listener para la tabla de materiales
         agregarListenerTablaL(); // Añadir el listener a la tabla de laboratorios
         agregarHorasCombo();
+        cargarLaboratorios();
     }
     
     private void loadProperties() {
@@ -57,6 +58,43 @@ public class AdminDashboard extends javax.swing.JFrame {
         contrasena = configLoader.getProperty("db.password");
     }
 
+    private void cargarLaboratorios() {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(URL, usuario, contrasena);
+            String query = "SELECT name FROM LABORATORY";
+            ps = conn.prepareStatement(query);
+            rs = ps.executeQuery();
+
+            cboLaboratorios.removeAllItems(); // Limpiar los elementos actuales
+            while (rs.next()) {
+                cboLaboratorios.addItem(rs.getString("name"));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al cargar los laboratorios", "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
     private void mostrarEstatus() {
         try {
             // Registrar el driver
