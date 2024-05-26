@@ -60,6 +60,8 @@ public class LoginWindow extends javax.swing.JFrame {
 
             conn.close();
         } catch (Exception e) {
+            e.printStackTrace(); // Imprimir el stack trace del error
+            System.err.println("Error de conexión: " + e.getMessage());
             throw new Exception("Error al conectar a la base de datos", e);
         }
         return role;
