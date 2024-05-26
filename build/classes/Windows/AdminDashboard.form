@@ -383,13 +383,15 @@
             <Component class="javax.swing.JComboBox" name="cboLaboratorios">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                  <StringArray count="6">
-                    <StringItem index="0" value="Laboratorio de Fisicoqu&#xed;mica"/>
-                    <StringItem index="1" value="Laboratorio de Ing. Civil"/>
-                    <StringItem index="2" value="Laboratorio de Ing. El&#xe9;ctrica"/>
-                    <StringItem index="3" value="Laboratorio de Ing. Industrial"/>
-                    <StringItem index="4" value="Laboratorio de Ing. Qu&#xed;mica e Ing. Mec&#xe1;nica Pesada"/>
-                    <StringItem index="5" value="Laboratorio de Simulaci&#xf3;n"/>
+                  <StringArray count="8">
+                    <StringItem index="0" value="Laboratorio de F&#xef;sica"/>
+                    <StringItem index="1" value="Laboratorio de Ing. Qu&#xed;mica"/>
+                    <StringItem index="2" value="Laboratorio de Ing. Civil"/>
+                    <StringItem index="3" value="Laboratorio de Ing. El&#xe9;ctrica"/>
+                    <StringItem index="4" value="Laboratorio de Ing. Industrial"/>
+                    <StringItem index="5" value="Laboratorio de Ing. en Sistemas Computacionales"/>
+                    <StringItem index="6" value="Laboratorio de Ing. Mecatr&#xf3;nica"/>
+                    <StringItem index="7" value="Laboratorio de Ing. Electr&#xf3;nica"/>
                   </StringArray>
                 </Property>
               </Properties>
@@ -530,7 +532,7 @@
                                       <EmptySpace max="32767" attributes="0"/>
                                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                           <Component id="txtUMail" alignment="1" max="32767" attributes="0"/>
-                                          <Component id="cboURole" alignment="1" pref="230" max="32767" attributes="0"/>
+                                          <Component id="cboURole" alignment="1" max="32767" attributes="0"/>
                                           <Component id="cboUDepartment" alignment="1" max="32767" attributes="0"/>
                                           <Component id="btnUModificar" min="-2" max="-2" attributes="0"/>
                                       </Group>
@@ -656,15 +658,18 @@
             <Component class="javax.swing.JComboBox" name="cboUDepartment">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                  <StringArray count="8">
-                    <StringItem index="0" value="seleccionar"/>
-                    <StringItem index="1" value="Sistemas"/>
-                    <StringItem index="2" value="Industrial"/>
-                    <StringItem index="3" value="Qu&#xed;mica"/>
-                    <StringItem index="4" value="Electrica"/>
-                    <StringItem index="5" value="Electronica"/>
-                    <StringItem index="6" value="Gestion"/>
-                    <StringItem index="7" value="Ciencias"/>
+                  <StringArray count="11">
+                    <StringItem index="0" value="Seleccionar"/>
+                    <StringItem index="1" value="Ingenier&#xed;a en Sistemas Computacionales"/>
+                    <StringItem index="2" value="Ingenier&#xed;a Industrial"/>
+                    <StringItem index="3" value="Ingenier&#xed;a Qu&#xed;mica"/>
+                    <StringItem index="4" value="Ingenier&#xed;a El&#xe9;ctrica"/>
+                    <StringItem index="5" value="Ingenier&#xed;a Electr&#xf3;nica"/>
+                    <StringItem index="6" value="Ingenier&#xed;a en Gesti&#xf3;n Empresarial"/>
+                    <StringItem index="7" value="Ciencias B&#xe1;sicas"/>
+                    <StringItem index="8" value="Ciencias Econ&#xf3;mico-Administrativas"/>
+                    <StringItem index="9" value="Ingenier&#xed;a Mec&#xe1;nica"/>
+                    <StringItem index="10" value="Ingenier&#xed;a Civil"/>
                   </StringArray>
                 </Property>
               </Properties>
@@ -1083,12 +1088,20 @@
             <Component class="javax.swing.JComboBox" name="cboLType">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                  <StringArray count="5">
-                    <StringItem index="0" value="Fisicoqu&#xed;mica"/>
-                    <StringItem index="1" value="Ingenier&#xed;a Civil"/>
-                    <StringItem index="2" value="Ingenier&#xed;a El&#xe9;ctrica"/>
-                    <StringItem index="3" value="Ingenier&#xed;a Industrial"/>
-                    <StringItem index="4" value="Simulaci&#xf3;n"/>
+                  <StringArray count="13">
+                    <StringItem index="0" value="F&#xed;sica"/>
+                    <StringItem index="1" value="Qu&#xed;mica"/>
+                    <StringItem index="2" value="Biolog&#xed;a"/>
+                    <StringItem index="3" value="Computaci&#xf3;n"/>
+                    <StringItem index="4" value="Electr&#xf3;nica"/>
+                    <StringItem index="5" value="El&#xe9;ctrica"/>
+                    <StringItem index="6" value="Mec&#xe1;nica"/>
+                    <StringItem index="7" value="Mecatr&#xf3;nica"/>
+                    <StringItem index="8" value="Energ&#xed;as Renovables"/>
+                    <StringItem index="9" value="Materiales"/>
+                    <StringItem index="10" value="An&#xe1;lisis de Alimentos"/>
+                    <StringItem index="11" value="Ingenier&#xed;a de Software"/>
+                    <StringItem index="12" value="Rob&#xf3;tica"/>
                   </StringArray>
                 </Property>
               </Properties>

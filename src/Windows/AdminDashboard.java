@@ -906,7 +906,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         lblDate.setText("0000-00-00");
         panelReservation.add(lblDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 370, 72, 19));
 
-        cboLaboratorios.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Laboratorio de Fisicoquímica", "Laboratorio de Ing. Civil", "Laboratorio de Ing. Eléctrica", "Laboratorio de Ing. Industrial", "Laboratorio de Ing. Química e Ing. Mecánica Pesada", "Laboratorio de Simulación" }));
+        cboLaboratorios.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Laboratorio de Fïsica", "Laboratorio de Ing. Química", "Laboratorio de Ing. Civil", "Laboratorio de Ing. Eléctrica", "Laboratorio de Ing. Industrial", "Laboratorio de Ing. en Sistemas Computacionales", "Laboratorio de Ing. Mecatrónica", "Laboratorio de Ing. Electrónica" }));
         panelReservation.add(cboLaboratorios, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 80, 532, -1));
         panelReservation.add(txtIdReservacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(395, 19, 80, -1));
 
@@ -961,7 +961,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         jLabel15.setText("Contraseña");
 
-        cboUDepartment.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "seleccionar", "Sistemas", "Industrial", "Química", "Electrica", "Electronica", "Gestion", "Ciencias" }));
+        cboUDepartment.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccionar", "Ingeniería en Sistemas Computacionales", "Ingeniería Industrial", "Ingeniería Química", "Ingeniería Eléctrica", "Ingeniería Electrónica", "Ingeniería en Gestión Empresarial", "Ciencias Básicas", "Ciencias Económico-Administrativas", "Ingeniería Mecánica", "Ingeniería Civil" }));
 
         btnUInsertar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/guardarUsuario.png"))); // NOI18N
         btnUInsertar.setText("Insertar");
@@ -1067,7 +1067,7 @@ public class AdminDashboard extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(txtUMail, javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(cboURole, javax.swing.GroupLayout.Alignment.TRAILING, 0, 230, Short.MAX_VALUE)
+                                    .addComponent(cboURole, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(cboUDepartment, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(btnUModificar)))
                             .addGroup(panelModifyUsersLayout.createSequentialGroup()
@@ -1212,7 +1212,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         jLabel26.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel26.setText("Información");
 
-        cboLType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Fisicoquímica", "Ingeniería Civil", "Ingeniería Eléctrica", "Ingeniería Industrial", "Simulación" }));
+        cboLType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Física", "Química", "Biología", "Computación", "Electrónica", "Eléctrica", "Mecánica", "Mecatrónica", "Energías Renovables", "Materiales", "Análisis de Alimentos", "Ingeniería de Software", "Robótica" }));
         cboLType.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cboLTypeActionPerformed(evt);

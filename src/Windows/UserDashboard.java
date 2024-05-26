@@ -606,7 +606,7 @@ public class UserDashboard extends javax.swing.JFrame {
 
         panelReservation.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 410, 300, 40));
 
-        cboLaboratorios.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Laboratorio de Fisicoquímica", "Laboratorio de Ing. Civil", "Laboratorio de Ing. Eléctrica", "Laboratorio de Ing. Industrial", "Ingenieria en Sistemas", "Laboratorio de Ing. Mecatronica" }));
+        cboLaboratorios.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Laboratorio de Fïsica", "Laboratorio de Ing. Química", "Laboratorio de Ing. Civil", "Laboratorio de Ing. Eléctrica", "Laboratorio de Ing. Industrial", "Laboratorio de Ing. en Sistemas Computacionales", "Laboratorio de Ing. Mecatrónica", "Laboratorio de Ing. Electrónica" }));
         panelReservation.add(cboLaboratorios, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 70, 550, -1));
 
         lblDate.setText("0000-00-00");
