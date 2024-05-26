@@ -29,15 +29,18 @@ public class AdminDashboard extends javax.swing.JFrame {
 
     String nombre_usuario;
     
-    public static final String URL = "jdbc:mysql://localhost:3306/labtimemanager?useTimeZone=true&serverTimezone=UTC&autoReconnect=true&useSSL=false";
-    public static final String usuario = "root";
-    public static final String contrasena = "password";
+    private static String URL;
+    private static String usuario;
+    private static String contrasena;
+    private static final String PROPERTIES_FILE_PATH = "config.properties";
+    
     PreparedStatement ps;
     ResultSet rs;
     
     public AdminDashboard(String nombre_usuario) {
         this.nombre_usuario = nombre_usuario;
         initComponents();
+        loadProperties();
         txtBievenida.setText("!Bienvenido " + nombre_usuario + "!");
         mostrarEstatus();
         rellenarComboBoxMateriales();
@@ -45,8 +48,53 @@ public class AdminDashboard extends javax.swing.JFrame {
         agregarListenerTablaM();  // Listener para la tabla de materiales
         agregarListenerTablaL(); // Añadir el listener a la tabla de laboratorios
         agregarHorasCombo();
+        cargarLaboratorios();
+    }
+    
+    private void loadProperties() {
+        ConfigLoader configLoader = new ConfigLoader(PROPERTIES_FILE_PATH);
+        URL = configLoader.getProperty("db.url");
+        usuario = configLoader.getProperty("db.user");
+        contrasena = configLoader.getProperty("db.password");
     }
 
+    private void cargarLaboratorios() {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(URL, usuario, contrasena);
+            String query = "SELECT name FROM LABORATORY";
+            ps = conn.prepareStatement(query);
+            rs = ps.executeQuery();
+
+            cboLaboratorios.removeAllItems(); // Limpiar los elementos actuales
+            while (rs.next()) {
+                cboLaboratorios.addItem(rs.getString("name"));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al cargar los laboratorios", "Error", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
     private void mostrarEstatus() {
         try {
             // Registrar el driver
@@ -243,28 +291,35 @@ public class AdminDashboard extends javax.swing.JFrame {
         DefaultTableModel modelo = (DefaultTableModel) tablaHorariosSemana.getModel();
         modelo.setRowCount(0); // Limpiar la tabla antes de agregar nuevas filas
 
-        String[] horas = { "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00" };
+        String[] horas = {"07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"};
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
             for (int i = 0; i < horas.length - 1; i++) {
                 String horaInicio = horas[i];
                 String horaFin = horas[i + 1];
-                String query = "SELECT COUNT(*) FROM RESERVATION R " +
-                               "JOIN SCHEDULE S ON R.id_schedule = S.id_schedule " +
-                               "WHERE S.date = ? AND S.start_time = ? AND S.end_time = ?";
+                String query = "SELECT L.name AS lab_name "
+                        + "FROM RESERVATION R "
+                        + "JOIN SCHEDULE S ON R.id_schedule = S.id_schedule "
+                        + "JOIN LABORATORY L ON R.id_lab = L.id_lab "
+                        + "WHERE S.date = ? AND S.start_time = ? AND S.end_time = ?";
                 ps = conn.prepareStatement(query);
                 ps.setString(1, selectedDate);
                 ps.setString(2, horaInicio);
                 ps.setString(3, horaFin);
                 rs = ps.executeQuery();
 
-                String estatus = "Libre";
-                if (rs.next() && rs.getInt(1) > 0) {
-                    estatus = "Ocupado";
+                boolean isOcupado = false;
+
+                while (rs.next()) {
+                    String labName = rs.getString("lab_name");
+                    modelo.addRow(new Object[]{horaInicio, horaFin, "Ocupado", labName});
+                    isOcupado = true;
                 }
 
-                modelo.addRow(new Object[]{horaInicio, horaFin, estatus});
+                if (!isOcupado) {
+                    modelo.addRow(new Object[]{horaInicio, horaFin, "Libre", ""});
+                }
             }
             conn.close();
         } catch (Exception e) {
@@ -582,6 +637,52 @@ public class AdminDashboard extends javax.swing.JFrame {
         conn.close();
     }
 
+    private boolean validarHoras(String horaInicio, String horaFin) {
+        String[] horas = {"07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"};
+        int indexInicio = -1;
+        int indexFin = -1;
+
+        for (int i = 0; i < horas.length; i++) {
+            if (horaInicio.equals(horas[i])) {
+                indexInicio = i;
+            }
+            if (horaFin.equals(horas[i])) {
+                indexFin = i;
+            }
+        }
+
+        if (indexInicio == -1 || indexFin == -1) {
+            return false;
+        }
+
+        int diferencia = indexFin - indexInicio;
+        return diferencia > 0 && diferencia <= 2;
+    }
+
+    private void initValidationListeners() {
+        cboHorasI.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                validarSeleccionHoras();
+            }
+        });
+
+        cboHorasF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                validarSeleccionHoras();
+            }
+        });
+    }
+
+    private void validarSeleccionHoras() {
+        String horaInicio = cboHorasI.getSelectedItem().toString();
+        String horaFin = cboHorasF.getSelectedItem().toString();
+
+        if (!validarHoras(horaInicio, horaFin)) {
+            JOptionPane.showMessageDialog(this, "La hora de fin debe ser mayor que la hora de inicio y el rango máximo debe ser de 2 horas.", "Error", JOptionPane.ERROR_MESSAGE);
+            cboHorasF.setSelectedIndex(cboHorasI.getSelectedIndex() + 1);
+        }
+    }
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -601,26 +702,22 @@ public class AdminDashboard extends javax.swing.JFrame {
         btnExportarPDF = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
         lblSelectLaboratorio = new javax.swing.JLabel();
         lblSelectMateriales = new javax.swing.JLabel();
         btnEliminarElemento = new javax.swing.JButton();
-        jLabel9 = new javax.swing.JLabel();
         cboMaterial = new javax.swing.JComboBox<>();
         calendario = new com.toedter.calendar.JCalendar();
         lblSelectHora = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         txtPurpose = new javax.swing.JTextArea();
-        cboLaboratorios = new javax.swing.JComboBox<>();
         lblDate = new javax.swing.JLabel();
+        cboLaboratorios = new javax.swing.JComboBox<>();
         txtIdReservacion = new javax.swing.JTextField();
         btnBuscarReservacion = new javax.swing.JButton();
-        jLabel33 = new javax.swing.JLabel();
         btnActualizarReservacion = new javax.swing.JButton();
-        jLabel34 = new javax.swing.JLabel();
         btnBorrarReservacion = new javax.swing.JButton();
+        jLabel9 = new javax.swing.JLabel();
         ModifyUsers = new javax.swing.JDialog();
         panelModifyUsers = new javax.swing.JPanel();
         txtUMail = new javax.swing.JTextField();
@@ -643,6 +740,9 @@ public class AdminDashboard extends javax.swing.JFrame {
         cboURole = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaU = new javax.swing.JTable();
+        cboOpcionesBusquedaU = new javax.swing.JComboBox<>();
+        jLabel35 = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
         ModifyLabs = new javax.swing.JDialog();
         panelModifyLabs = new javax.swing.JPanel();
         txtLCapacity = new javax.swing.JTextField();
@@ -663,6 +763,8 @@ public class AdminDashboard extends javax.swing.JFrame {
         jScrollPane7 = new javax.swing.JScrollPane();
         tablaL = new javax.swing.JTable();
         txtLLocation = new javax.swing.JTextField();
+        cboOpcionesBusquedaL = new javax.swing.JComboBox<>();
+        jLabel36 = new javax.swing.JLabel();
         ModifyMaterials = new javax.swing.JDialog();
         panelModifyMaterials = new javax.swing.JPanel();
         txtMIdLab = new javax.swing.JTextField();
@@ -681,6 +783,8 @@ public class AdminDashboard extends javax.swing.JFrame {
         jScrollPane6 = new javax.swing.JScrollPane();
         tablaM = new javax.swing.JTable();
         txtMQuantity = new javax.swing.JTextField();
+        cboOpcionesBusquedaM = new javax.swing.JComboBox<>();
+        jLabel37 = new javax.swing.JLabel();
         Statitics = new javax.swing.JDialog();
         grupoBotonesAdmin = new javax.swing.ButtonGroup();
         panelBienvenida = new javax.swing.JPanel();
@@ -719,24 +823,30 @@ public class AdminDashboard extends javax.swing.JFrame {
         Reservation.setTitle("Modificar Reservaciones");
         Reservation.setResizable(false);
 
+        panelReservation.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
         btnAgregarMaterial.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/aceptar.png"))); // NOI18N
         btnAgregarMaterial.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAgregarMaterialActionPerformed(evt);
             }
         });
+        panelReservation.add(btnAgregarMaterial, new org.netbeans.lib.awtextra.AbsoluteConstraints(642, 145, 30, -1));
 
         jLabel19.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel19.setText("Tipo:");
+        panelReservation.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 360, -1, -1));
 
-        cboHorasF.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00" }));
+        cboHorasF.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00" }));
         cboHorasF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cboHorasFActionPerformed(evt);
             }
         });
+        panelReservation.add(cboHorasF, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 370, -1, -1));
 
         cboType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Práctica", "Clase", "Recorrido", "Mantenimiento" }));
+        panelReservation.add(cboType, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 360, 250, -1));
 
         cboHorasI.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00" }));
         cboHorasI.addActionListener(new java.awt.event.ActionListener() {
@@ -744,57 +854,67 @@ public class AdminDashboard extends javax.swing.JFrame {
                 cboHorasIActionPerformed(evt);
             }
         });
+        panelReservation.add(cboHorasI, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 370, -1, -1));
 
-        btnHacerReservacion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/guardar.png"))); // NOI18N
+        btnHacerReservacion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/guardarRegistro.png"))); // NOI18N
+        btnHacerReservacion.setText("Guardar");
         btnHacerReservacion.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnHacerReservacionActionPerformed(evt);
             }
         });
+        panelReservation.add(btnHacerReservacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 430, 102, -1));
 
         btnCancelar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/cerrar.png"))); // NOI18N
+        btnCancelar.setText("Cancelar");
         btnCancelar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCancelarActionPerformed(evt);
             }
         });
+        panelReservation.add(btnCancelar, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 480, -1, -1));
 
         tablaMateriales.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Material"
+                "Material", "Cantidad"
             }
         ));
         jScrollPane2.setViewportView(tablaMateriales);
 
+        panelReservation.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(386, 180, 322, 143));
+
         btnExportarPDF.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/exportar_pdf.png"))); // NOI18N
+        btnExportarPDF.setText("Exportar");
         btnExportarPDF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnExportarPDFActionPerformed(evt);
             }
         });
+        panelReservation.add(btnExportarPDF, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 430, 96, -1));
 
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel10.setText("Proposito:");
+        panelReservation.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 410, -1, -1));
 
         jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel11.setText("Crear una nueva reservación");
-
-        jLabel12.setText("Guardar");
+        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/registro.png"))); // NOI18N
+        panelReservation.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 10, -1, -1));
 
         jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel13.setText("a");
-
-        jLabel14.setText("Exportar");
+        panelReservation.add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 370, 26, -1));
 
         lblSelectLaboratorio.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         lblSelectLaboratorio.setText("Seleccionar laboratorio:");
+        panelReservation.add(lblSelectLaboratorio, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, -1, -1));
 
         lblSelectMateriales.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         lblSelectMateriales.setText("Seleccionar material:");
+        panelReservation.add(lblSelectMateriales, new org.netbeans.lib.awtextra.AbsoluteConstraints(386, 124, -1, -1));
 
         btnEliminarElemento.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/papelera.png"))); // NOI18N
         btnEliminarElemento.addActionListener(new java.awt.event.ActionListener() {
@@ -802,8 +922,7 @@ public class AdminDashboard extends javax.swing.JFrame {
                 btnEliminarElementoActionPerformed(evt);
             }
         });
-
-        jLabel9.setText("Cancelar");
+        panelReservation.add(btnEliminarElemento, new org.netbeans.lib.awtextra.AbsoluteConstraints(678, 145, 30, -1));
 
         cboMaterial.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         cboMaterial.addActionListener(new java.awt.event.ActionListener() {
@@ -811,197 +930,70 @@ public class AdminDashboard extends javax.swing.JFrame {
                 cboMaterialActionPerformed(evt);
             }
         });
+        panelReservation.add(cboMaterial, new org.netbeans.lib.awtextra.AbsoluteConstraints(386, 146, 240, -1));
 
         calendario.setMinimumSize(new java.awt.Dimension(250, 185));
-        calendario.setPreferredSize(new java.awt.Dimension(250, 185));
+        calendario.setPreferredSize(new java.awt.Dimension(300, 222));
         calendario.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 calendarioPropertyChange(evt);
             }
         });
+        panelReservation.add(calendario, new org.netbeans.lib.awtextra.AbsoluteConstraints(15, 146, -1, -1));
 
         lblSelectHora.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         lblSelectHora.setText("Seleccionar Fecha:");
+        panelReservation.add(lblSelectHora, new org.netbeans.lib.awtextra.AbsoluteConstraints(15, 124, -1, -1));
 
         txtPurpose.setColumns(20);
         txtPurpose.setRows(5);
         jScrollPane3.setViewportView(txtPurpose);
 
-        cboLaboratorios.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Laboratorio de Fisicoquímica", "Laboratorio de Ing. Civil", "Laboratorio de Ing. Eléctrica", "Laboratorio de Ing. Industrial", "Laboratorio de Ing. Química e Ing. Mecánica Pesada", "Laboratorio de Simulación" }));
+        panelReservation.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 430, 310, 70));
 
         lblDate.setText("0000-00-00");
+        panelReservation.add(lblDate, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 370, 72, 19));
 
+        cboLaboratorios.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccionar", "Laboratorio de Fïsica", "Laboratorio de Ing. Química", "Laboratorio de Ing. Civil", "Laboratorio de Ing. Eléctrica", "Laboratorio de Ing. Industrial", "Laboratorio de Ing. en Sistemas Computacionales", "Laboratorio de Ing. Mecatrónica", "Laboratorio de Ing. Electrónica" }));
+        panelReservation.add(cboLaboratorios, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 80, 532, -1));
+        panelReservation.add(txtIdReservacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(395, 19, 80, -1));
+
+        btnBuscarReservacion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/buscar.png"))); // NOI18N
         btnBuscarReservacion.setText("Buscar");
         btnBuscarReservacion.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnBuscarReservacionActionPerformed(evt);
             }
         });
+        panelReservation.add(btnBuscarReservacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 20, -1, -1));
 
-        jLabel33.setText("Actualizar");
-
-        btnActualizarReservacion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/actualizar.png"))); // NOI18N
+        btnActualizarReservacion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/guardarRegistro.png"))); // NOI18N
+        btnActualizarReservacion.setText("Actualizar");
         btnActualizarReservacion.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnActualizarReservacionActionPerformed(evt);
             }
         });
+        panelReservation.add(btnActualizarReservacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 480, -1, -1));
 
-        jLabel34.setText("Borrar");
-
-        btnBorrarReservacion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/papelera.png"))); // NOI18N
+        btnBorrarReservacion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/eliminarRegistro.png"))); // NOI18N
+        btnBorrarReservacion.setText("Borrar");
         btnBorrarReservacion.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnBorrarReservacionActionPerformed(evt);
             }
         });
+        panelReservation.add(btnBorrarReservacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 430, -1, -1));
 
-        javax.swing.GroupLayout panelReservationLayout = new javax.swing.GroupLayout(panelReservation);
-        panelReservation.setLayout(panelReservationLayout);
-        panelReservationLayout.setHorizontalGroup(
-            panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelReservationLayout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelReservationLayout.createSequentialGroup()
-                        .addComponent(jLabel11)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(txtIdReservacion, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnBuscarReservacion))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReservationLayout.createSequentialGroup()
-                        .addComponent(lblSelectLaboratorio)
-                        .addGap(18, 18, 18)
-                        .addComponent(cboLaboratorios, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReservationLayout.createSequentialGroup()
-                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelReservationLayout.createSequentialGroup()
-                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel19)
-                                    .addComponent(cboType, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(panelReservationLayout.createSequentialGroup()
-                                        .addComponent(cboHorasI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(5, 5, 5)
-                                        .addComponent(cboHorasF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(lblDate, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(calendario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(lblSelectHora))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 162, Short.MAX_VALUE))
-                            .addGroup(panelReservationLayout.createSequentialGroup()
-                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(panelReservationLayout.createSequentialGroup()
-                                        .addComponent(jLabel33)
-                                        .addGap(24, 24, 24)
-                                        .addComponent(btnActualizarReservacion, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(panelReservationLayout.createSequentialGroup()
-                                        .addComponent(jLabel12)
-                                        .addGap(34, 34, 34)
-                                        .addComponent(btnHacerReservacion, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel34)
-                                .addGap(18, 18, 18)
-                                .addComponent(btnBorrarReservacion, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(37, 37, 37)
-                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel14)
-                                    .addComponent(jLabel9))
-                                .addGap(27, 27, 27)
-                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(btnExportarPDF, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(btnCancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(39, 39, 39)))
-                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                            .addGroup(panelReservationLayout.createSequentialGroup()
-                                .addComponent(cboMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(36, 36, 36)
-                                .addComponent(btnAgregarMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btnEliminarElemento, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(lblSelectMateriales, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel10, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.LEADING))))
-                .addGap(27, 27, 27))
-        );
-        panelReservationLayout.setVerticalGroup(
-            panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReservationLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelReservationLayout.createSequentialGroup()
-                        .addComponent(jLabel11)
-                        .addGap(29, 29, 29))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReservationLayout.createSequentialGroup()
-                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtIdReservacion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnBuscarReservacion))
-                        .addGap(18, 18, 18)))
-                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblSelectLaboratorio)
-                    .addComponent(cboLaboratorios, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(42, 42, 42)
-                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelReservationLayout.createSequentialGroup()
-                        .addComponent(lblSelectHora)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(calendario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(cboHorasI, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cboHorasF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel13)
-                            .addComponent(lblDate, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel19)
-                        .addGap(12, 12, 12)
-                        .addComponent(cboType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnHacerReservacion)
-                            .addComponent(jLabel12))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel33)
-                            .addComponent(btnActualizarReservacion))
-                        .addGap(12, 12, 12))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelReservationLayout.createSequentialGroup()
-                        .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelReservationLayout.createSequentialGroup()
-                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(panelReservationLayout.createSequentialGroup()
-                                        .addComponent(lblSelectMateriales)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(cboMaterial, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(btnEliminarElemento)
-                                    .addComponent(btnAgregarMaterial))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jLabel10)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane3))
-                            .addGroup(panelReservationLayout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(btnExportarPDF)
-                                    .addComponent(jLabel14)
-                                    .addComponent(btnBorrarReservacion)
-                                    .addComponent(jLabel34))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(panelReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(btnCancelar)
-                                    .addComponent(jLabel9))))
-                        .addGap(14, 14, 14))))
-        );
+        jLabel9.setText("ID");
+        jLabel9.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+        panelReservation.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 20, 80, 20));
 
         javax.swing.GroupLayout ReservationLayout = new javax.swing.GroupLayout(Reservation.getContentPane());
         Reservation.getContentPane().setLayout(ReservationLayout);
         ReservationLayout.setHorizontalGroup(
             ReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelReservation, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelReservation, javax.swing.GroupLayout.DEFAULT_SIZE, 730, Short.MAX_VALUE)
         );
         ReservationLayout.setVerticalGroup(
             ReservationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1011,13 +1003,15 @@ public class AdminDashboard extends javax.swing.JFrame {
         );
 
         ModifyUsers.setTitle("Modificar Usuarios");
+        ModifyUsers.setResizable(false);
 
         jLabel5.setText("Nombre:");
 
         jLabel15.setText("Contraseña");
 
-        cboUDepartment.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "seleccionar", "Sistemas", "Industrial", "Química", "Electrica", "Electronica", "Gestion", "Ciencias" }));
+        cboUDepartment.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Seleccionar", "Ingeniería en Sistemas Computacionales", "Ingeniería Industrial", "Ingeniería Química", "Ingeniería Eléctrica", "Ingeniería Electrónica", "Ingeniería en Gestión Empresarial", "Ciencias Básicas", "Ciencias Económico-Administrativas", "Ingeniería Mecánica", "Ingeniería Civil" }));
 
+        btnUInsertar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/guardarUsuario.png"))); // NOI18N
         btnUInsertar.setText("Insertar");
         btnUInsertar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1027,6 +1021,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         jLabel16.setText("Correo eléctronico:");
 
+        btnUModificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/actualizarUsuario.png"))); // NOI18N
         btnUModificar.setText("Modificar");
         btnUModificar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1036,6 +1031,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         jLabel17.setText("Role:");
 
+        btnUEliminar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/eliminarUsuario.png"))); // NOI18N
         btnUEliminar.setText("Eliminar");
         btnUEliminar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1045,6 +1041,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         jLabel18.setText("Departamento:");
 
+        btnULimpiar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/limpiarUsuario.png"))); // NOI18N
         btnULimpiar.setText("Limpiar");
         btnULimpiar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1058,6 +1055,7 @@ public class AdminDashboard extends javax.swing.JFrame {
             }
         });
 
+        btnUBuscar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/buscarUsuarios.png"))); // NOI18N
         btnUBuscar.setText("Buscar");
         btnUBuscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1066,7 +1064,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         });
 
         jLabel20.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel20.setText("Datos");
+        jLabel20.setText("Información");
 
         cboURole.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "usuario", "administrador" }));
 
@@ -1083,25 +1081,27 @@ public class AdminDashboard extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(tablaU);
 
+        cboOpcionesBusquedaU.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ID", "Nombre", "Correo" }));
+
+        jLabel35.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/editarUsuarios.png"))); // NOI18N
+
         javax.swing.GroupLayout panelModifyUsersLayout = new javax.swing.GroupLayout(panelModifyUsers);
         panelModifyUsers.setLayout(panelModifyUsersLayout);
         panelModifyUsersLayout.setHorizontalGroup(
             panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelModifyUsersLayout.createSequentialGroup()
+                .addGap(29, 29, 29)
                 .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelModifyUsersLayout.createSequentialGroup()
-                        .addGap(187, 187, 187)
-                        .addComponent(jLabel20))
-                    .addGroup(panelModifyUsersLayout.createSequentialGroup()
-                        .addGap(66, 66, 66)
+                        .addGap(133, 133, 133)
+                        .addComponent(jLabel35)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel21))
                     .addGroup(panelModifyUsersLayout.createSequentialGroup()
-                        .addGap(29, 29, 29)
+                        .addGap(130, 130, 130)
+                        .addComponent(jLabel20))
+                    .addGroup(panelModifyUsersLayout.createSequentialGroup()
                         .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(panelModifyUsersLayout.createSequentialGroup()
-                                .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(txtUName, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(panelModifyUsersLayout.createSequentialGroup()
                                 .addComponent(jLabel15)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -1115,20 +1115,28 @@ public class AdminDashboard extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(txtUMail, javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(cboURole, javax.swing.GroupLayout.Alignment.TRAILING, 0, 230, Short.MAX_VALUE)
+                                    .addComponent(cboURole, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(cboUDepartment, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnUModificar))))
+                                    .addComponent(btnUModificar)))
+                            .addGroup(panelModifyUsersLayout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(txtUName, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 368, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelModifyUsersLayout.createSequentialGroup()
-                                .addComponent(btnUEliminar)
-                                .addGap(30, 30, 30)
-                                .addComponent(btnULimpiar))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelModifyUsersLayout.createSequentialGroup()
-                                .addComponent(txtUId, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
+                            .addGroup(panelModifyUsersLayout.createSequentialGroup()
+                                .addComponent(txtUId, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(cboOpcionesBusquedaU, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(btnUBuscar))
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 435, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(panelModifyUsersLayout.createSequentialGroup()
+                                    .addComponent(btnUEliminar)
+                                    .addGap(54, 54, 54)
+                                    .addComponent(btnULimpiar))
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 435, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap(20, Short.MAX_VALUE))
         );
         panelModifyUsersLayout.setVerticalGroup(
@@ -1136,50 +1144,55 @@ public class AdminDashboard extends javax.swing.JFrame {
             .addGroup(panelModifyUsersLayout.createSequentialGroup()
                 .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelModifyUsersLayout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtUId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnUBuscar)))
-                    .addGroup(panelModifyUsersLayout.createSequentialGroup()
-                        .addGap(37, 37, 37)
-                        .addComponent(jLabel21)))
-                .addGap(45, 45, 45)
+                        .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelModifyUsersLayout.createSequentialGroup()
+                                .addGap(37, 37, 37)
+                                .addComponent(jLabel21))
+                            .addGroup(panelModifyUsersLayout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(txtUId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnUBuscar)
+                                    .addComponent(cboOpcionesBusquedaU, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(59, 59, 59))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelModifyUsersLayout.createSequentialGroup()
+                        .addComponent(jLabel35)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel20)
+                        .addGap(7, 7, 7)))
                 .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelModifyUsersLayout.createSequentialGroup()
-                        .addGap(28, 28, 28)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 61, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(panelModifyUsersLayout.createSequentialGroup()
                         .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(panelModifyUsersLayout.createSequentialGroup()
-                                .addComponent(jLabel20)
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel5))
+                            .addComponent(jLabel5)
                             .addComponent(txtUName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel15)
                             .addComponent(txtUPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
-                        .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtUMail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel16))
                         .addGap(18, 18, 18)
                         .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(panelModifyUsersLayout.createSequentialGroup()
-                                .addComponent(jLabel17)
-                                .addGap(55, 55, 55)
-                                .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel18)
-                                    .addComponent(cboUDepartment, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(cboURole, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
+                            .addComponent(cboURole, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel17))
+                        .addGap(18, 18, 18)
+                        .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel18)
+                            .addComponent(cboUDepartment, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(panelModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnUInsertar)
                             .addComponent(btnUModificar)
                             .addComponent(btnUEliminar)
-                            .addComponent(btnULimpiar))
-                        .addGap(55, 55, 55))))
+                            .addComponent(btnULimpiar))))
+                .addGap(38, 38, 38))
         );
 
         javax.swing.GroupLayout ModifyUsersLayout = new javax.swing.GroupLayout(ModifyUsers.getContentPane());
@@ -1190,15 +1203,17 @@ public class AdminDashboard extends javax.swing.JFrame {
         );
         ModifyUsersLayout.setVerticalGroup(
             ModifyUsersLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelModifyUsers, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelModifyUsers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         ModifyLabs.setTitle("Modificar Laboratorios");
+        ModifyLabs.setResizable(false);
 
         jLabel22.setText("Nombre:");
 
         jLabel23.setText("Ubcación:");
 
+        btnLInsertar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/guardarRegistro.png"))); // NOI18N
         btnLInsertar.setText("Insertar");
         btnLInsertar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1208,6 +1223,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         jLabel24.setText("Capacidad:");
 
+        btnLModificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/editar.png"))); // NOI18N
         btnLModificar.setText("Modificar");
         btnLModificar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1217,6 +1233,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         jLabel25.setText("Tipo:");
 
+        btnLEliminar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/eliminarRegistro.png"))); // NOI18N
         btnLEliminar.setText("Eliminar");
         btnLEliminar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1224,6 +1241,7 @@ public class AdminDashboard extends javax.swing.JFrame {
             }
         });
 
+        btnLLimpiar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/limpiarRegistro.png"))); // NOI18N
         btnLLimpiar.setText("Limpiar");
         btnLLimpiar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1231,6 +1249,7 @@ public class AdminDashboard extends javax.swing.JFrame {
             }
         });
 
+        btnLBuscar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/buscar.png"))); // NOI18N
         btnLBuscar.setText("Buscar");
         btnLBuscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1239,9 +1258,9 @@ public class AdminDashboard extends javax.swing.JFrame {
         });
 
         jLabel26.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel26.setText("Datos");
+        jLabel26.setText("Información");
 
-        cboLType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Fisicoquímica", "Ingeniería Civil", "Ingeniería Eléctrica", "Ingeniería Industrial", "Simulación" }));
+        cboLType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Física", "Química", "Biología", "Computación", "Electrónica", "Eléctrica", "Mecánica", "Mecatrónica", "Energías Renovables", "Materiales", "Análisis de Alimentos", "Ingeniería de Software", "Robótica" }));
         cboLType.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cboLTypeActionPerformed(evt);
@@ -1261,55 +1280,61 @@ public class AdminDashboard extends javax.swing.JFrame {
         ));
         jScrollPane7.setViewportView(tablaL);
 
+        cboOpcionesBusquedaL.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ID", "Nombre" }));
+
+        jLabel36.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/Laboratorio.png"))); // NOI18N
+
         javax.swing.GroupLayout panelModifyLabsLayout = new javax.swing.GroupLayout(panelModifyLabs);
         panelModifyLabs.setLayout(panelModifyLabsLayout);
         panelModifyLabsLayout.setHorizontalGroup(
             panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelModifyLabsLayout.createSequentialGroup()
+            .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                .addGap(29, 29, 29)
                 .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(panelModifyLabsLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(btnLEliminar)
-                        .addGap(18, 18, 18)
+                        .addGap(57, 57, 57)
                         .addComponent(btnLLimpiar))
-                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelModifyLabsLayout.createSequentialGroup()
                         .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(panelModifyLabsLayout.createSequentialGroup()
-                                .addGap(29, 29, 29)
                                 .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
-                                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel24)
-                                            .addComponent(jLabel25))
-                                        .addGap(72, 72, 72)
-                                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(txtLCapacity, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(cboLType, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
-                                        .addComponent(jLabel22)
-                                        .addGap(25, 25, 25)
-                                        .addComponent(txtLName, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
-                                        .addComponent(jLabel23)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(txtLLocation, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
-                                        .addComponent(btnLInsertar)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(btnLModificar))))
+                                    .addComponent(jLabel24)
+                                    .addComponent(jLabel25))
+                                .addGap(72, 72, 72)
+                                .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(txtLCapacity)
+                                    .addComponent(cboLType, 0, 236, Short.MAX_VALUE)))
                             .addGroup(panelModifyLabsLayout.createSequentialGroup()
-                                .addGap(187, 187, 187)
-                                .addComponent(jLabel26)))
+                                .addComponent(jLabel22)
+                                .addGap(25, 25, 25)
+                                .addComponent(txtLName, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                                .addComponent(jLabel23)
+                                .addGap(18, 18, 18)
+                                .addComponent(txtLLocation, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                                .addComponent(btnLInsertar)
+                                .addGap(48, 48, 48)
+                                .addComponent(btnLModificar))
+                            .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                                .addGap(37, 37, 37)
+                                .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel26)
+                                    .addGroup(panelModifyLabsLayout.createSequentialGroup()
+                                        .addComponent(jLabel27)
+                                        .addGap(102, 102, 102)
+                                        .addComponent(jLabel36)))))
                         .addGap(18, 18, 18)
-                        .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelModifyLabsLayout.createSequentialGroup()
-                        .addGap(66, 66, 66)
-                        .addComponent(jLabel27)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(txtLId, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnLBuscar)))
-                .addGap(19, 19, 19))
+                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelModifyLabsLayout.createSequentialGroup()
+                                .addComponent(txtLId)
+                                .addGap(18, 18, 18)
+                                .addComponent(cboOpcionesBusquedaL, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnLBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE))))
+                .addContainerGap())
         );
         panelModifyLabsLayout.setVerticalGroup(
             panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1317,13 +1342,16 @@ public class AdminDashboard extends javax.swing.JFrame {
                 .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelModifyLabsLayout.createSequentialGroup()
                         .addGap(17, 17, 17)
-                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnLBuscar)
-                            .addComponent(txtLId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel36)
+                            .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(btnLBuscar)
+                                .addComponent(txtLId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cboOpcionesBusquedaL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(panelModifyLabsLayout.createSequentialGroup()
                         .addGap(37, 37, 37)
                         .addComponent(jLabel27)))
-                .addGap(46, 46, 46)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelModifyLabsLayout.createSequentialGroup()
                         .addComponent(jLabel26)
@@ -1355,26 +1383,30 @@ public class AdminDashboard extends javax.swing.JFrame {
                         .addGroup(panelModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnLInsertar)
                             .addComponent(btnLModificar))))
-                .addContainerGap(32, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout ModifyLabsLayout = new javax.swing.GroupLayout(ModifyLabs.getContentPane());
         ModifyLabs.getContentPane().setLayout(ModifyLabsLayout);
         ModifyLabsLayout.setHorizontalGroup(
             ModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(ModifyLabsLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ModifyLabsLayout.createSequentialGroup()
                 .addComponent(panelModifyLabs, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 13, Short.MAX_VALUE))
         );
         ModifyLabsLayout.setVerticalGroup(
             ModifyLabsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelModifyLabs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(ModifyLabsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(panelModifyLabs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         ModifyMaterials.setTitle("Modificar Materiales");
+        ModifyMaterials.setResizable(false);
 
         panelModifyMaterials.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        panelModifyMaterials.add(txtMIdLab, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 194, 230, -1));
+        panelModifyMaterials.add(txtMIdLab, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 194, 290, -1));
 
         jLabel28.setText("Nombre:");
         panelModifyMaterials.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 110, -1, -1));
@@ -1382,55 +1414,60 @@ public class AdminDashboard extends javax.swing.JFrame {
         jLabel29.setText("Cantidad");
         panelModifyMaterials.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 150, -1, -1));
 
+        btnMInsertar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/guardarRegistro.png"))); // NOI18N
         btnMInsertar.setText("Insertar");
         btnMInsertar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnMInsertarActionPerformed(evt);
             }
         });
-        panelModifyMaterials.add(btnMInsertar, new org.netbeans.lib.awtextra.AbsoluteConstraints(29, 336, -1, -1));
+        panelModifyMaterials.add(btnMInsertar, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 300, -1, -1));
 
         jLabel30.setText("id Lab");
         panelModifyMaterials.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 190, -1, -1));
 
+        btnMModificar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/editar.png"))); // NOI18N
         btnMModificar.setText("Modificar");
         btnMModificar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnMModificarActionPerformed(evt);
             }
         });
-        panelModifyMaterials.add(btnMModificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(119, 336, -1, -1));
+        panelModifyMaterials.add(btnMModificar, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 300, -1, -1));
         panelModifyMaterials.add(txtMName, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 110, 290, -1));
 
         jLabel31.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel31.setText("Datos");
-        panelModifyMaterials.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(187, 86, -1, -1));
+        jLabel31.setText("Información");
+        panelModifyMaterials.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 90, -1, -1));
         panelModifyMaterials.add(jLabel32, new org.netbeans.lib.awtextra.AbsoluteConstraints(391, 37, -1, -1));
-        panelModifyMaterials.add(txtMId, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 20, 72, -1));
+        panelModifyMaterials.add(txtMId, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 20, 120, -1));
 
+        btnMBuscar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/buscar.png"))); // NOI18N
         btnMBuscar.setText("Buscar");
         btnMBuscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnMBuscarActionPerformed(evt);
             }
         });
-        panelModifyMaterials.add(btnMBuscar, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 20, -1, -1));
+        panelModifyMaterials.add(btnMBuscar, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 20, -1, -1));
 
+        btnMEliminar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/eliminarRegistro.png"))); // NOI18N
         btnMEliminar.setText("Eliminar");
         btnMEliminar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnMEliminarActionPerformed(evt);
             }
         });
-        panelModifyMaterials.add(btnMEliminar, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 330, -1, -1));
+        panelModifyMaterials.add(btnMEliminar, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 300, -1, -1));
 
+        btnMLimpiar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/limpiarRegistro.png"))); // NOI18N
         btnMLimpiar.setText("Limpiar");
         btnMLimpiar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnMLimpiarActionPerformed(evt);
             }
         });
-        panelModifyMaterials.add(btnMLimpiar, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 330, -1, -1));
+        panelModifyMaterials.add(btnMLimpiar, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 300, -1, -1));
 
         tablaM.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -1445,8 +1482,14 @@ public class AdminDashboard extends javax.swing.JFrame {
         ));
         jScrollPane6.setViewportView(tablaM);
 
-        panelModifyMaterials.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 100, 328, 210));
+        panelModifyMaterials.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 100, 328, 180));
         panelModifyMaterials.add(txtMQuantity, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 150, 290, -1));
+
+        cboOpcionesBusquedaM.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ID", "Nombre" }));
+        panelModifyMaterials.add(cboOpcionesBusquedaM, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 20, 100, -1));
+
+        jLabel37.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/microscopio.png"))); // NOI18N
+        panelModifyMaterials.add(jLabel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 20, -1, -1));
 
         javax.swing.GroupLayout ModifyMaterialsLayout = new javax.swing.GroupLayout(ModifyMaterials.getContentPane());
         ModifyMaterials.getContentPane().setLayout(ModifyMaterialsLayout);
@@ -1461,6 +1504,8 @@ public class AdminDashboard extends javax.swing.JFrame {
             .addComponent(panelModifyMaterials, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
         );
 
+        Statitics.setResizable(false);
+
         javax.swing.GroupLayout StatiticsLayout = new javax.swing.GroupLayout(Statitics.getContentPane());
         Statitics.getContentPane().setLayout(StatiticsLayout);
         StatiticsLayout.setHorizontalGroup(
@@ -1473,6 +1518,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Panel de Administrador");
 
         txtBievenida.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         txtBievenida.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -1519,13 +1565,13 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         tablaHorariosSemana.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "Hora de inicio", "Hora de finalización", "Estatus"
+                "Hora de inicio", "Hora de finalización", "Estatus", "Laboratorio"
             }
         ));
         jScrollPane4.setViewportView(tablaHorariosSemana);
@@ -1634,6 +1680,11 @@ public class AdminDashboard extends javax.swing.JFrame {
         menuOpciones.add(opcionModificarMaterial);
 
         opcionEstadisticas.setText("Ver estádisticas");
+        opcionEstadisticas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                opcionEstadisticasActionPerformed(evt);
+            }
+        });
         menuOpciones.add(opcionEstadisticas);
 
         menuBarraUsuario.add(menuOpciones);
@@ -1704,6 +1755,12 @@ public class AdminDashboard extends javax.swing.JFrame {
             String status = "confirmed";
             String tipo = cboType.getSelectedItem().toString();
 
+            // Validar que la hora de fin sea mayor que la hora de inicio y que el rango sea máximo de 2 horas
+            if (!validarHoras(horaInicio, horaFin)) {
+                JOptionPane.showMessageDialog(this, "La hora de fin debe ser mayor que la hora de inicio y el rango máximo debe ser de 2 horas.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             // Obtener IDs de las tablas relacionadas
             int idLab = obtenerIdLaboratorio(laboratorio);
 
@@ -1735,25 +1792,32 @@ public class AdminDashboard extends javax.swing.JFrame {
 
             // Insertar los materiales asociados a la reservación en la tabla RESERVATION_MATERIAL
             for (int i = 0; i < materialModel.getRowCount(); i++) {
-                String material = materialModel.getValueAt(i, 0).toString();
+                String material = (String) materialModel.getValueAt(i, 0);
+                String quantityStr = materialModel.getValueAt(i, 1) != null ? materialModel.getValueAt(i, 1).toString() : "0";
                 int idMaterial = obtenerIdMaterial(material);
+                int quantity = Integer.parseInt(quantityStr); // Leer la cantidad de materiales
 
                 // Verificar si el material ya está asociado a la reservación para evitar duplicados
                 if (!existeReservaMaterial(idReservation, idMaterial)) {
-                    insertarReservationMaterial(idReservation, idMaterial, 1); // Puedes ajustar la cantidad según sea necesario
+                    insertarReservationMaterial(idReservation, idMaterial, quantity); // Ajustar la cantidad según sea necesario
                 }
             }
 
             JOptionPane.showMessageDialog(this, "Reservación guardada exitosamente");
             Reservation.setVisible(false);
-            //mostrarReservaciones(); // Actualizar la tabla de reservaciones
         } catch (Exception e) {
             System.err.println("Error al guardar la reservación: " + e.getMessage());
         } finally {
             try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (conn != null) conn.close();
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
             } catch (SQLException e) {
                 System.err.println("Error al cerrar la conexión: " + e.getMessage());
             }
@@ -1779,12 +1843,14 @@ public class AdminDashboard extends javax.swing.JFrame {
         cboType.setSelectedIndex(0);
         lblDate.setText("");
         txtPurpose.setText("");
+        txtIdReservacion.setText("");
+        txtPurpose.setText("");
         DefaultTableModel materialModel = (DefaultTableModel) tablaMateriales.getModel();
         materialModel.setRowCount(0);
 
         // Mostrar el diálogo de reservación
         Reservation.setVisible(true);
-        Reservation.setSize(780, 600);
+        Reservation.setSize(740, 560);
         Reservation.setLocationRelativeTo(this);
     }//GEN-LAST:event_opcionAgregarReservacionActionPerformed
 
@@ -1987,25 +2053,37 @@ public class AdminDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_btnULimpiarActionPerformed
 
     private void btnUBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUBuscarActionPerformed
-        String idOrUsername = txtUId.getText().trim();
-        boolean isNumeric = idOrUsername.matches("\\d+"); // Verifica si la entrada es un número (ID)
+        String searchValue = txtUId.getText().trim();
+        String searchOption = cboOpcionesBusquedaU.getSelectedItem().toString();
 
-        String query;
-        if (isNumeric) {
-            query = "SELECT id_user, username, password, email, role, department FROM USER WHERE id_user = ?";
-        } else {
-            query = "SELECT id_user, username, password, email, role, department FROM USER WHERE username = ?";
+        String query = "";
+
+        switch (searchOption) {
+            case "ID":
+                query = "SELECT id_user, username, password, email, role, department FROM USER WHERE id_user = ?";
+                break;
+            case "Nombre":
+                query = "SELECT id_user, username, password, email, role, department FROM USER WHERE username = ?";
+                break;
+            case "Correo":
+                query = "SELECT id_user, username, password, email, role, department FROM USER WHERE email = ?";
+                break;
+            default:
+                JOptionPane.showMessageDialog(this, "Opción de búsqueda no válida", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
         }
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
             ps = conn.prepareStatement(query);
-            if (isNumeric) {
-                ps.setInt(1, Integer.parseInt(idOrUsername));
+
+            if (searchOption.equals("ID")) {
+                ps.setInt(1, Integer.parseInt(searchValue));
             } else {
-                ps.setString(1, idOrUsername);
+                ps.setString(1, searchValue);
             }
+
             rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -2093,25 +2171,35 @@ public class AdminDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLLimpiarActionPerformed
 
     private void btnLBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLBuscarActionPerformed
-        String idOrName = txtLId.getText().trim();
-        boolean isNumeric = idOrName.matches("\\d+"); // Verifica si la entrada es un número (ID)
+        String searchValue = txtLId.getText().trim();
+        String searchOption = cboOpcionesBusquedaL.getSelectedItem().toString();
 
-        String query;
-        if (isNumeric) {
-            query = "SELECT id_lab, name, location, capacity, type FROM LABORATORY WHERE id_lab = ?";
-        } else {
-            query = "SELECT id_lab, name, location, capacity, type FROM LABORATORY WHERE name = ?";
+        String query = "";
+
+        switch (searchOption) {
+            case "ID":
+                query = "SELECT id_lab, name, location, capacity, type FROM LABORATORY WHERE id_lab = ?";
+                break;
+            case "Nombre":
+                query = "SELECT id_lab, name, location, capacity, type FROM LABORATORY WHERE name LIKE ?";
+                searchValue = "%" + searchValue + "%"; // Añadir comodines para permitir búsqueda parcial
+                break;
+            default:
+                JOptionPane.showMessageDialog(this, "Opción de búsqueda no válida", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
         }
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
             ps = conn.prepareStatement(query);
-            if (isNumeric) {
-                ps.setInt(1, Integer.parseInt(idOrName));
+
+            if (searchOption.equals("ID")) {
+                ps.setInt(1, Integer.parseInt(searchValue));
             } else {
-                ps.setString(1, idOrName);
+                ps.setString(1, searchValue);
             }
+
             rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -2209,25 +2297,35 @@ public class AdminDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMLimpiarActionPerformed
 
     private void btnMBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMBuscarActionPerformed
-        String idOrName = txtMId.getText().trim();
-        boolean isNumeric = idOrName.matches("\\d+"); // Verifica si la entrada es un número (ID)
+        String searchValue = txtMId.getText().trim();
+        String searchOption = cboOpcionesBusquedaM.getSelectedItem().toString();
 
-        String query;
-        if (isNumeric) {
-            query = "SELECT id_material, name, quantity, id_lab FROM MATERIAL WHERE id_material = ?";
-        } else {
-            query = "SELECT id_material, name, quantity, id_lab FROM MATERIAL WHERE name = ?";
+        String query = "";
+
+        switch (searchOption) {
+            case "ID":
+                query = "SELECT id_material, name, quantity, id_lab FROM MATERIAL WHERE id_material = ?";
+                break;
+            case "Nombre":
+                query = "SELECT id_material, name, quantity, id_lab FROM MATERIAL WHERE name LIKE ?";
+                searchValue = "%" + searchValue + "%"; // Añadir comodines para permitir búsqueda parcial
+                break;
+            default:
+                JOptionPane.showMessageDialog(this, "Opción de búsqueda no válida", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
         }
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, usuario, contrasena);
             ps = conn.prepareStatement(query);
-            if (isNumeric) {
-                ps.setInt(1, Integer.parseInt(idOrName));
+
+            if (searchOption.equals("ID")) {
+                ps.setInt(1, Integer.parseInt(searchValue));
             } else {
-                ps.setString(1, idOrName);
+                ps.setString(1, searchValue);
             }
+
             rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -2251,8 +2349,15 @@ public class AdminDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMBuscarActionPerformed
 
     private void opcionModificarUsuariosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionModificarUsuariosActionPerformed
+        txtUId.setText("");
+        txtUName.setText("");
+        txtUPassword.setText("");
+        txtUMail.setText("");
+        cboURole.setSelectedIndex(0);
+        cboUDepartment.setSelectedIndex(0);
+        
         cargarUsuariosEnTabla();
-        ModifyUsers.setSize(890, 450);
+        ModifyUsers.setSize(890, 430);
         ModifyUsers.setLocationRelativeTo(null);
         ModifyUsers.setVisible(true);
     }//GEN-LAST:event_opcionModificarUsuariosActionPerformed
@@ -2331,15 +2436,26 @@ public class AdminDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_btnMEliminarActionPerformed
 
     private void opcionModificarMaterialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionModificarMaterialActionPerformed
+        txtMId.setText("");
+        txtMName.setText("");
+        txtMQuantity.setText("");
+        txtMId.setText("");
+        
         cargarMaterialesEnTabla();
-        ModifyMaterials.setSize(780, 450);
+        ModifyMaterials.setSize(780, 380);
         ModifyMaterials.setLocationRelativeTo(null);
         ModifyMaterials.setVisible(true);
     }//GEN-LAST:event_opcionModificarMaterialActionPerformed
 
     private void opcionModificarLaboratoriosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionModificarLaboratoriosActionPerformed
+        txtLId.setText("");
+        txtLCapacity.setText("");
+        txtLLocation.setText("");
+        txtLName.setText("");
+        cboLType.setSelectedIndex(0);
+        
         cargarLaboratoriosEnTabla();
-        ModifyLabs.setSize(880, 450);
+        ModifyLabs.setSize(880, 370);
         ModifyLabs.setLocationRelativeTo(null);
         ModifyLabs.setVisible(true);
     }//GEN-LAST:event_opcionModificarLaboratoriosActionPerformed
@@ -2393,7 +2509,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         String queryReservation = "SELECT id_lab, id_schedule, purpose, status, type FROM RESERVATION WHERE id_reservation = ?";
         String querySchedule = "SELECT date, start_time, end_time FROM SCHEDULE WHERE id_schedule = ?";
-        String queryMaterials = "SELECT M.name FROM MATERIAL M JOIN RESERVATION_MATERIAL RM ON M.id_material = RM.id_material WHERE RM.id_reservation = ?";
+        String queryMaterials = "SELECT M.name, RM.quantity FROM MATERIAL M JOIN RESERVATION_MATERIAL RM ON M.id_material = RM.id_material WHERE RM.id_reservation = ?";
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -2454,7 +2570,8 @@ public class AdminDashboard extends javax.swing.JFrame {
 
                 while (rs.next()) {
                     String materialName = rs.getString("name");
-                    materialModel.addRow(new Object[]{materialName});
+                    int quantity = rs.getInt("quantity");
+                    materialModel.addRow(new Object[]{materialName, quantity});
                 }
 
                 conn.close();
@@ -2482,6 +2599,12 @@ public class AdminDashboard extends javax.swing.JFrame {
             String proposito = txtPurpose.getText();
             String status = "confirmed";
             String tipo = cboType.getSelectedItem().toString();
+
+            // Validar que la hora de fin sea mayor que la hora de inicio y que el rango sea máximo de 2 horas
+            if (!validarHoras(horaInicio, horaFin)) {
+                JOptionPane.showMessageDialog(this, "La hora de fin debe ser mayor que la hora de inicio y el rango máximo debe ser de 2 horas.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
             // Obtener IDs de las tablas relacionadas
             int idLab = obtenerIdLaboratorio(laboratorio);
@@ -2515,12 +2638,13 @@ public class AdminDashboard extends javax.swing.JFrame {
             for (int i = 0; i < materialModel.getRowCount(); i++) {
                 String material = materialModel.getValueAt(i, 0).toString();
                 int idMaterial = obtenerIdMaterial(material);
-                insertarReservationMaterial(idReservacion, idMaterial, 1); // Puedes ajustar la cantidad según sea necesario
+                int quantity = Integer.parseInt(materialModel.getValueAt(i, 1).toString()); // Leer la cantidad de materiales
+
+                insertarReservationMaterial(idReservacion, idMaterial, quantity); // Ajustar la cantidad según sea necesario
             }
 
             JOptionPane.showMessageDialog(this, "Reservación actualizada exitosamente");
             Reservation.setVisible(false);
-            //mostrarReservaciones(); // Actualizar la tabla de reservaciones
         } catch (Exception e) {
             System.err.println("Error al actualizar la reservación: " + e.getMessage());
         } finally {
@@ -2622,6 +2746,10 @@ public class AdminDashboard extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }//GEN-LAST:event_opcionOscuroActionPerformed
+
+    private void opcionEstadisticasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionEstadisticasActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_opcionEstadisticasActionPerformed
     
     /**
      * @param args the command line arguments
@@ -2710,6 +2838,9 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cboLType;
     private javax.swing.JComboBox<String> cboLaboratorios;
     private javax.swing.JComboBox<String> cboMaterial;
+    private javax.swing.JComboBox<String> cboOpcionesBusquedaL;
+    private javax.swing.JComboBox<String> cboOpcionesBusquedaM;
+    private javax.swing.JComboBox<String> cboOpcionesBusquedaU;
     private javax.swing.JComboBox<String> cboType;
     private javax.swing.JComboBox<String> cboUDepartment;
     private javax.swing.JComboBox<String> cboURole;
@@ -2717,9 +2848,7 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
@@ -2740,8 +2869,9 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel30;
     private javax.swing.JLabel jLabel31;
     private javax.swing.JLabel jLabel32;
-    private javax.swing.JLabel jLabel33;
-    private javax.swing.JLabel jLabel34;
+    private javax.swing.JLabel jLabel35;
+    private javax.swing.JLabel jLabel36;
+    private javax.swing.JLabel jLabel37;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -2754,6 +2884,7 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane7;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel lblDate;
     private javax.swing.JLabel lblSelectHora;
     private javax.swing.JLabel lblSelectLaboratorio;
