@@ -60,8 +60,8 @@ public class LoginWindow extends javax.swing.JFrame {
 
             conn.close();
         } catch (Exception e) {
-            //e.printStackTrace(); // Imprimir el stack trace del error
-            //System.err.println("Error de conexión: " + e.getMessage());
+            e.printStackTrace(); // Imprimir el stack trace del error
+            System.err.println("Error de conexión: " + e.getMessage());
             throw new Exception("Error al conectar a la base de datos", e);
         }
         return role;
@@ -390,7 +390,7 @@ public class LoginWindow extends javax.swing.JFrame {
         } catch (Exception e) {
             // Mostrar mensaje de error si no se puede conectar a la base de datos
             JOptionPane.showMessageDialog(this, "Error al conectarse a la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
-            //System.err.println("Error al conectar a la base de datos: " + e.getMessage());
+            System.err.println("Error al conectar a la base de datos: " + e.getMessage());
         }
     }//GEN-LAST:event_btnIniciarSesionActionPerformed
 
