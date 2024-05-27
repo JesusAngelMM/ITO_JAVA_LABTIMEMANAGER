@@ -1856,8 +1856,8 @@ public class AdminDashboard extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnEliminarElementoActionPerformed
 
+    
     private void btnExportarPDFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarPDFActionPerformed
-        // TODO add your handling code here:
         // Creacion del PDF con los datos de la reservacion
         String rutaArchivo = "C:/Users/jenni/Downloads/reservacion.pdf"; // Ruta del archivo PDF
         String encabezado  = "C:/Users/jenni/Documents/TAP_PROYECTO_LABTIMEMANAGER/ITO_JAVA_LABTIMEMANAGER/src/Images/Encabezado.png"; // Ruta de la imagen
