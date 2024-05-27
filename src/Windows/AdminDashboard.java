@@ -2,7 +2,22 @@ package Windows;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.category.DefaultCategoryDataset;
+import javax.swing.*;
+
 import java.awt.Desktop;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,12 +28,29 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.sql.SQLException;
 import java.lang.ClassNotFoundException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.Authenticator;
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -58,10 +90,10 @@ public class AdminDashboard extends javax.swing.JFrame {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                jLabel2.setText(jLabel2.getText() + rs.getString("username"));
-                jLabel6.setText(jLabel6.getText() + rs.getString("email"));
-                jLabel7.setText(jLabel7.getText() + rs.getString("role"));
-                jLabel8.setText(jLabel8.getText() + rs.getString("department"));
+                lblNombre.setText(lblNombre.getText() + rs.getString("username"));
+                lblCorreo.setText(lblCorreo.getText() + rs.getString("email"));
+                lblRol.setText(lblRol.getText() + rs.getString("role"));
+                lblDepartamento.setText(lblDepartamento.getText() + rs.getString("department"));
             }
 
             conn.close();
@@ -688,10 +720,10 @@ public class AdminDashboard extends javax.swing.JFrame {
         panelEstatus = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
+        lblNombre = new javax.swing.JLabel();
+        lblRol = new javax.swing.JLabel();
+        lblCorreo = new javax.swing.JLabel();
+        lblDepartamento = new javax.swing.JLabel();
         panelTabla = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         tablaHorariosSemana = new javax.swing.JTable();
@@ -1491,29 +1523,29 @@ public class AdminDashboard extends javax.swing.JFrame {
         gridBagConstraints.gridy = 1;
         panelEstatus.add(jLabel1, gridBagConstraints);
 
-        jLabel2.setText("Nombre: ");
+        lblNombre.setText("Nombre: ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
-        panelEstatus.add(jLabel2, gridBagConstraints);
+        panelEstatus.add(lblNombre, gridBagConstraints);
 
-        jLabel7.setText("Rol: ");
+        lblRol.setText("Rol: ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
-        panelEstatus.add(jLabel7, gridBagConstraints);
+        panelEstatus.add(lblRol, gridBagConstraints);
 
-        jLabel6.setText("Correo: ");
+        lblCorreo.setText("Correo: ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
-        panelEstatus.add(jLabel6, gridBagConstraints);
+        panelEstatus.add(lblCorreo, gridBagConstraints);
 
-        jLabel8.setText("Departamento: ");
+        lblDepartamento.setText("Departamento: ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
-        panelEstatus.add(jLabel8, gridBagConstraints);
+        panelEstatus.add(lblDepartamento, gridBagConstraints);
 
         panelTabla.setLayout(new java.awt.BorderLayout(1, 1));
 
@@ -1634,6 +1666,11 @@ public class AdminDashboard extends javax.swing.JFrame {
         menuOpciones.add(opcionModificarMaterial);
 
         opcionEstadisticas.setText("Ver estádisticas");
+        opcionEstadisticas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                opcionEstadisticasActionPerformed(evt);
+            }
+        });
         menuOpciones.add(opcionEstadisticas);
 
         menuBarraUsuario.add(menuOpciones);
@@ -1821,6 +1858,131 @@ public class AdminDashboard extends javax.swing.JFrame {
 
     private void btnExportarPDFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarPDFActionPerformed
         // TODO add your handling code here:
+        // Creacion del PDF con los datos de la reservacion
+        String rutaArchivo = "C:/Users/jenni/Downloads/reservacion.pdf"; // Ruta del archivo PDF
+        String encabezado  = "C:/Users/jenni/Documents/TAP_PROYECTO_LABTIMEMANAGER/ITO_JAVA_LABTIMEMANAGER/src/Images/Encabezado.png"; // Ruta de la imagen
+        String piepagina = "C:/Users/jenni/Documents/TAP_PROYECTO_LABTIMEMANAGER/ITO_JAVA_LABTIMEMANAGER/src/Images/Pie de pagina.png"; // Ruta de la imagen
+        
+        Document document = new Document();
+        try {
+            PdfWriter.getInstance(document, new FileOutputStream(rutaArchivo));
+            document.open();
+            
+            // Agregar imagen como encabezado al PDF
+            Image imagen1 = null;
+            try {
+                imagen1 = Image.getInstance(encabezado);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (imagen1 != null) {
+                // Ajustar el ancho de la imagen automáticamente
+                float documentWidth = document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin();
+                imagen1.scaleToFit(documentWidth, imagen1.getHeight());
+                // Calcular la posición y para colocar la imagen en la parte superior
+                float y = document.getPageSize().getHeight() - imagen1.getScaledHeight() - document.topMargin();
+
+                imagen1.setAbsolutePosition(document.leftMargin(), y);
+                document.add(imagen1);
+            }
+            
+            // Agregar una imagen pequeña centrada
+            Image imagen2 = null;
+            try {
+                imagen2 = Image.getInstance(piepagina);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (imagen2 != null) {
+                imagen2.scaleToFit(150, 150);
+                // Calcular la posición x para centrar la imagen pequeña
+                float xSmall = (document.getPageSize().getWidth() - imagen2.getScaledWidth()) / 2;
+                // Calcular la posición y para colocar la imagen en la parte inferior
+                float ySmall = document.bottomMargin() + 70; // Colocar la imagen justo encima del margen inferior
+
+                imagen2.setAbsolutePosition(xSmall, ySmall);
+                document.add(imagen2);
+            }
+            
+            // Texto y datos
+            Paragraph paragraph = new Paragraph("\n\n\n\n\nREPORTE DE RESERVACIÓN DE LABORATORIO");
+            paragraph.setAlignment(Element.ALIGN_CENTER);
+            document.add(paragraph);
+            document.add(new Paragraph("\n\nDatos del usuario\n"));
+            document.add(new Paragraph("     " + lblNombre.getText()));   // Nombre
+            document.add(new Paragraph("     " + lblCorreo.getText()));   // Correo
+            document.add(new Paragraph("     " + lblRol.getText()));   // Rol
+            document.add(new Paragraph("     " + lblDepartamento.getText()));   // Dpto
+            document.add(new Paragraph("\n\nDatos de la reservacion\n"));
+            document.add(new Paragraph("     Fecha: " + lblDate.getText()));
+            document.add(new Paragraph("     Hora: " + cboHorasI.getSelectedItem() + " - " + cboHorasF.getSelectedItem()));
+            document.add(new Paragraph("     Laboratorio: " + cboLaboratorios.getSelectedItem()));
+            document.add(new Paragraph("     Lista de materiales: "));
+            for (int i = 0; i < tablaMateriales.getRowCount(); i++) {
+                for (int j = 0; j < tablaMateriales.getColumnCount(); j++) {
+                    document.add(new Paragraph("          - " + tablaMateriales.getValueAt(i, j)));
+                }
+                System.out.println();
+            }
+            document.add(new Paragraph("     Tipo: " + cboType.getSelectedItem()));
+            document.add(new Paragraph("     Proposito: " + txtPurpose.getText()));
+            document.close();
+            
+            // Mostrar mensaje de éxito
+            JOptionPane.showMessageDialog(null, "PDF creado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } catch (FileNotFoundException | DocumentException e) {
+            e.printStackTrace();
+        }
+        enviarEmail(lblCorreo.getText().substring(8), rutaArchivo);
+    }                                              
+    
+    public static void enviarEmail(String destinatario, String rutaArchivo) {
+        // Configurar propiedades de la conexión SMTP
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com"); // Servidor SMTP de Gmail
+        props.put("mail.smtp.port", "587"); // Puerto SMTP (normalmente 25, 465 o 587)
+        props.put("mail.smtp.auth", "true"); // Habilitar autenticación SMTP
+        props.put("mail.smtp.starttls.enable", "true"); // Habilitar STARTTLS para seguridad
+        
+        // Crear una sesión de correo electrónico con autenticación
+        Session session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication("labtimemanager@gmail.com", "ocenyirarrvajqgx");
+            }
+        });
+
+        try {
+            // Crear un mensaje de correo electrónico
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress("labtimemanager@gmail.com")); // Dirección de correo del remitente
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario)); // Dirección de correo del destinatario
+            message.setSubject("LabtimeManager"); // Asunto del correo electrónico
+
+            // Cuerpo del correo electrónico
+            BodyPart messageBodyPart = new MimeBodyPart();
+            messageBodyPart.setText("Reporte de Reservacion de Laboratorio");
+
+            // Adjuntar el archivo PDF
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(messageBodyPart);
+            messageBodyPart = new MimeBodyPart();
+            DataSource source = new FileDataSource(rutaArchivo); // Ruta del archivo PDF
+            messageBodyPart.setDataHandler(new DataHandler(source));
+            messageBodyPart.setFileName("reservacion.pdf"); // Nombre del archivo adjunto
+            multipart.addBodyPart(messageBodyPart);
+            message.setContent(multipart);
+
+            // Enviar el mensaje de correo electrónico
+            Transport.send(message);
+            JOptionPane.showMessageDialog(null, "Correo electrónico enviado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_btnExportarPDFActionPerformed
 
     private void cboMaterialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboMaterialActionPerformed
@@ -2622,6 +2784,214 @@ public class AdminDashboard extends javax.swing.JFrame {
             e.printStackTrace();
         }
     }//GEN-LAST:event_opcionOscuroActionPerformed
+
+    private void opcionEstadisticasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionEstadisticasActionPerformed
+        // TODO add your handling code here:
+        GraficoEstadistico("Estadisticas/Graficas");
+        Statitics.setSize(890, 450);
+        Statitics.setLocationRelativeTo(null);
+        Statitics.setVisible(true);
+    }//GEN-LAST:event_opcionEstadisticasActionPerformed
+    public void GraficoEstadistico(String titulo) {
+    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+    // Conexión a la base de datos y recuperación de datos estadísticos
+    try (Connection conexion = DriverManager.getConnection(URL, usuario, contrasena)) {
+        // Materiales más usados
+        PreparedStatement stmt1 = conexion.prepareStatement(
+                "SELECT material_id, COUNT(*) as cantidad_usos FROM reservaciones GROUP BY material_id ORDER BY cantidad_usos DESC");
+        ResultSet rs1 = stmt1.executeQuery();
+        while (rs1.next()) {
+            int idMaterial = rs1.getInt("material_id");
+            int usos = rs1.getInt("cantidad_usos");
+            dataset.addValue(usos, "Materiales", String.valueOf(idMaterial));
+        }
+
+        // Laboratorios más frecuentes
+        PreparedStatement stmt2 = conexion.prepareStatement(
+                "SELECT laboratorio_id, COUNT(*) as cantidad_reservas FROM reservaciones GROUP BY laboratorio_id ORDER BY cantidad_reservas DESC");
+        ResultSet rs2 = stmt2.executeQuery();
+        while (rs2.next()) {
+            int idLaboratorio = rs2.getInt("laboratorio_id");
+            int reservas = rs2.getInt("cantidad_reservas");
+            dataset.addValue(reservas, "Laboratorios", String.valueOf(idLaboratorio));
+        }
+
+        // Horas más concurridas
+        PreparedStatement stmt3 = conexion.prepareStatement(
+                "SELECT EXTRACT(HOUR FROM hora_inicio) as hora, COUNT(*) as cantidad_reservas FROM reservaciones GROUP BY EXTRACT(HOUR FROM hora_inicio) ORDER BY cantidad_reservas DESC");
+        ResultSet rs3 = stmt3.executeQuery();
+        while (rs3.next()) {
+            int hora = rs3.getInt("hora");
+            int reservas = rs3.getInt("cantidad_reservas");
+            dataset.addValue(reservas, "Horas", String.valueOf(hora));
+        }
+
+        // Tipo de reservación más realizada
+        PreparedStatement stmt4 = conexion.prepareStatement(
+                "SELECT tipo_reservacion, COUNT(*) as cantidad_reservas FROM reservaciones GROUP BY tipo_reservacion ORDER BY cantidad_reservas DESC");
+        ResultSet rs4 = stmt4.executeQuery();
+        while (rs4.next()) {
+            String tipoReservacion = rs4.getString("tipo_reservacion");
+            int reservas = rs4.getInt("cantidad_reservas");
+            dataset.addValue(reservas, "Tipo de Reservación", tipoReservacion);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return;
+    }
+
+    // Creación y configuración del gráfico
+    JFreeChart chart = ChartFactory.createBarChart(
+            titulo,
+            "Categoría",
+            "Cantidad",
+            dataset
+    );
+
+    // Creación y configuración del panel de gráfico
+    ChartPanel chartPanel = new ChartPanel(chart);
+    chartPanel.setPreferredSize(new java.awt.Dimension(800, 600));
+
+    // Agregar el panel de gráfico al contenido del JDialog
+    getContentPane().add(chartPanel);
+}
+
+    
+    
+    
+    
+    public void GraficoEstadistico3(String titulo) {
+    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+    // Conexión a la base de datos y recuperación de datos estadísticos
+    try (Connection conexion = DriverManager.getConnection(URL, usuario, contrasena)) {
+        // Materiales más usados
+        PreparedStatement stmt1 = conexion.prepareStatement(
+                "SELECT material_id, COUNT(*) as cantidad_usos FROM reservaciones GROUP BY material_id ORDER BY cantidad_usos DESC");
+        ResultSet rs1 = stmt1.executeQuery();
+        while (rs1.next()) {
+            int idMaterial = rs1.getInt("material_id");
+            int usos = rs1.getInt("cantidad_usos");
+            dataset.addValue(usos, "Materiales", String.valueOf(idMaterial));
+        }
+
+        // Laboratorios más frecuentes
+        PreparedStatement stmt2 = conexion.prepareStatement(
+                "SELECT laboratorio_id, COUNT(*) as cantidad_reservas FROM reservaciones GROUP BY laboratorio_id ORDER BY cantidad_reservas DESC");
+        ResultSet rs2 = stmt2.executeQuery();
+        while (rs2.next()) {
+            int idLaboratorio = rs2.getInt("laboratorio_id");
+            int reservas = rs2.getInt("cantidad_reservas");
+            dataset.addValue(reservas, "Laboratorios", String.valueOf(idLaboratorio));
+        }
+
+        // Horas más concurridas
+        PreparedStatement stmt3 = conexion.prepareStatement(
+                "SELECT EXTRACT(HOUR FROM hora_inicio) as hora, COUNT(*) as cantidad_reservas FROM reservaciones GROUP BY EXTRACT(HOUR FROM hora_inicio) ORDER BY cantidad_reservas DESC");
+        ResultSet rs3 = stmt3.executeQuery();
+        while (rs3.next()) {
+            int hora = rs3.getInt("hora");
+            int reservas = rs3.getInt("cantidad_reservas");
+            dataset.addValue(reservas, "Horas", String.valueOf(hora));
+        }
+
+        // Tipo de reservación más realizada
+        PreparedStatement stmt4 = conexion.prepareStatement(
+                "SELECT tipo_reservacion, COUNT(*) as cantidad_reservas FROM reservaciones GROUP BY tipo_reservacion ORDER BY cantidad_reservas DESC");
+        ResultSet rs4 = stmt4.executeQuery();
+        while (rs4.next()) {
+            String tipoReservacion = rs4.getString("tipo_reservacion");
+            int reservas = rs4.getInt("cantidad_reservas");
+            dataset.addValue(reservas, "Tipo de Reservación", tipoReservacion);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return;
+    }
+
+    // Creación y configuración del gráfico
+    JFreeChart chart = ChartFactory.createBarChart(
+            titulo,
+            "Categoría",
+            "Cantidad",
+            dataset
+    );
+
+    // Creación y configuración del panel de gráfico
+    ChartPanel chartPanel = new ChartPanel(chart);
+    chartPanel.setPreferredSize(new java.awt.Dimension(800, 600));
+
+    // Agregar el panel de gráfico al marco
+    setContentPane(chartPanel);
+}
+
+    
+    public void GraficoEstadistico2(String titulo) {
+        //super(titulo);
+
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        // Conexión a la base de datos y recuperación de datos estadísticos
+        try (Connection conexion = DriverManager.getConnection(URL, usuario, contrasena)) {
+            // Materiales más usados
+            PreparedStatement stmt1 = conexion.prepareStatement(
+                    "SELECT material_id, COUNT(*) as cantidad_usos FROM reservaciones GROUP BY material_id ORDER BY cantidad_usos DESC");
+            ResultSet rs1 = stmt1.executeQuery();
+            while (rs1.next()) {
+                int idMaterial = rs1.getInt("material_id");
+                int usos = rs1.getInt("cantidad_usos");
+                dataset.addValue(usos, "Materiales", String.valueOf(idMaterial));
+            }
+
+            // Laboratorios más frecuentes
+            PreparedStatement stmt2 = conexion.prepareStatement(
+                    "SELECT laboratorio_id, COUNT(*) as cantidad_reservas FROM reservaciones GROUP BY laboratorio_id ORDER BY cantidad_reservas DESC");
+            ResultSet rs2 = stmt2.executeQuery();
+            while (rs2.next()) {
+                int idLaboratorio = rs2.getInt("laboratorio_id");
+                int reservas = rs2.getInt("cantidad_reservas");
+                dataset.addValue(reservas, "Laboratorios", String.valueOf(idLaboratorio));
+            }
+
+            // Horas más concurridas
+            PreparedStatement stmt3 = conexion.prepareStatement(
+                    "SELECT EXTRACT(HOUR FROM hora_inicio) as hora, COUNT(*) as cantidad_reservas FROM reservaciones GROUP BY EXTRACT(HOUR FROM hora_inicio) ORDER BY cantidad_reservas DESC");
+            ResultSet rs3 = stmt3.executeQuery();
+            while (rs3.next()) {
+                int hora = rs3.getInt("hora");
+                int reservas = rs3.getInt("cantidad_reservas");
+                dataset.addValue(reservas, "Horas", String.valueOf(hora));
+            }
+
+            // Tipo de reservación más realizada
+            PreparedStatement stmt4 = conexion.prepareStatement(
+                    "SELECT tipo_reservacion, COUNT(*) as cantidad_reservas FROM reservaciones GROUP BY tipo_reservacion ORDER BY cantidad_reservas DESC");
+            ResultSet rs4 = stmt4.executeQuery();
+            while (rs4.next()) {
+                String tipoReservacion = rs4.getString("tipo_reservacion");
+                int reservas = rs4.getInt("cantidad_reservas");
+                dataset.addValue(reservas, "Tipo de Reservación", tipoReservacion);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Creación y configuración del gráfico
+        JFreeChart chart = ChartFactory.createBarChart(
+                "Estadísticas del Laboratorio",
+                "Categoría",
+                "Cantidad",
+                dataset
+        );
+
+        // Creación y configuración del panel de gráfico
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(800, 600));
+
+        // Agregar el panel de gráfico al marco
+        setContentPane(chartPanel);
+    }
     
     /**
      * @param args the command line arguments
@@ -2725,7 +3095,6 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
@@ -2744,9 +3113,6 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel34;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -2754,7 +3120,11 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane7;
+    private javax.swing.JLabel lblCorreo;
     private javax.swing.JLabel lblDate;
+    private javax.swing.JLabel lblDepartamento;
+    private javax.swing.JLabel lblNombre;
+    private javax.swing.JLabel lblRol;
     private javax.swing.JLabel lblSelectHora;
     private javax.swing.JLabel lblSelectLaboratorio;
     private javax.swing.JLabel lblSelectMateriales;
