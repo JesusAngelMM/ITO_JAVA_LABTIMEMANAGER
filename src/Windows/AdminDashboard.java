@@ -2926,7 +2926,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         File fileToSend = fileChooser.getSelectedFile();
         String rutaArchivo = fileToSend.getAbsolutePath();
-        String emailDestinatario = JOptionPane.showInputDialog(this, "Ingrese el correo electrónico del destinatario:");
+        String emailDestinatario = JOptionPane.showInputDialog(this, "Ingrese el correo electrónico del destinatario:", lblCorreo.getText().substring(8));
 
         if (emailDestinatario != null && !emailDestinatario.isEmpty()) {
             enviarEmail(emailDestinatario, rutaArchivo);
