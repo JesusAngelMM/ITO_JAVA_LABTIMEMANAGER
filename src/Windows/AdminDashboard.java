@@ -1,9 +1,33 @@
 package Windows;
 
+
+import java.util.Properties;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.*;
+import javax.mail.internet.*;
+
+import javax.mail.Authenticator;
+import javax.mail.PasswordAuthentication;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Image;
+
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.itextpdf.text.pdf.PdfPTable;
 import java.awt.Desktop;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -16,13 +40,17 @@ import java.lang.ClassNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.mail.Session;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import javax.mail.Session;
 
 
 public class AdminDashboard extends javax.swing.JFrame {
@@ -106,10 +134,10 @@ public class AdminDashboard extends javax.swing.JFrame {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                jLabel2.setText(jLabel2.getText() + rs.getString("username"));
-                jLabel6.setText(jLabel6.getText() + rs.getString("email"));
-                jLabel7.setText(jLabel7.getText() + rs.getString("role"));
-                jLabel8.setText(jLabel8.getText() + rs.getString("department"));
+                lblNombre.setText(lblNombre.getText() + rs.getString("username"));
+                lblCorreo.setText(lblCorreo.getText() + rs.getString("email"));
+                lblRol.setText(lblRol.getText() + rs.getString("role"));
+                lblDepartamento.setText(lblDepartamento.getText() + rs.getString("department"));
             }
 
             conn.close();
@@ -699,7 +727,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         btnCancelar = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         tablaMateriales = new javax.swing.JTable();
-        btnExportarPDF = new javax.swing.JButton();
+        btnGuardarPDF = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
@@ -718,6 +746,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         btnActualizarReservacion = new javax.swing.JButton();
         btnBorrarReservacion = new javax.swing.JButton();
         jLabel9 = new javax.swing.JLabel();
+        btnEnviar = new javax.swing.JButton();
         ModifyUsers = new javax.swing.JDialog();
         panelModifyUsers = new javax.swing.JPanel();
         txtUMail = new javax.swing.JTextField();
@@ -792,10 +821,10 @@ public class AdminDashboard extends javax.swing.JFrame {
         panelEstatus = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
+        lblNombre = new javax.swing.JLabel();
+        lblRol = new javax.swing.JLabel();
+        lblCorreo = new javax.swing.JLabel();
+        lblDepartamento = new javax.swing.JLabel();
         panelTabla = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         tablaHorariosSemana = new javax.swing.JTable();
@@ -872,7 +901,7 @@ public class AdminDashboard extends javax.swing.JFrame {
                 btnCancelarActionPerformed(evt);
             }
         });
-        panelReservation.add(btnCancelar, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 480, -1, -1));
+        panelReservation.add(btnCancelar, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 480, 100, -1));
 
         tablaMateriales.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -886,14 +915,14 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         panelReservation.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(386, 180, 322, 143));
 
-        btnExportarPDF.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/exportar_pdf.png"))); // NOI18N
-        btnExportarPDF.setText("Exportar");
-        btnExportarPDF.addActionListener(new java.awt.event.ActionListener() {
+        btnGuardarPDF.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/exportar_pdf.png"))); // NOI18N
+        btnGuardarPDF.setText("Exportar");
+        btnGuardarPDF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnExportarPDFActionPerformed(evt);
+                btnGuardarPDFActionPerformed(evt);
             }
         });
-        panelReservation.add(btnExportarPDF, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 430, 96, -1));
+        panelReservation.add(btnGuardarPDF, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 430, 100, -1));
 
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel10.setText("Proposito:");
@@ -983,11 +1012,20 @@ public class AdminDashboard extends javax.swing.JFrame {
                 btnBorrarReservacionActionPerformed(evt);
             }
         });
-        panelReservation.add(btnBorrarReservacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 430, -1, -1));
+        panelReservation.add(btnBorrarReservacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 430, 100, -1));
 
         jLabel9.setText("ID");
         jLabel9.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
         panelReservation.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 20, 80, 20));
+
+        btnEnviar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/gmail.png"))); // NOI18N
+        btnEnviar.setText("Enviar");
+        btnEnviar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEnviarActionPerformed(evt);
+            }
+        });
+        panelReservation.add(btnEnviar, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 480, 100, -1));
 
         javax.swing.GroupLayout ReservationLayout = new javax.swing.GroupLayout(Reservation.getContentPane());
         Reservation.getContentPane().setLayout(ReservationLayout);
@@ -1537,29 +1575,29 @@ public class AdminDashboard extends javax.swing.JFrame {
         gridBagConstraints.gridy = 1;
         panelEstatus.add(jLabel1, gridBagConstraints);
 
-        jLabel2.setText("Nombre: ");
+        lblNombre.setText("Nombre: ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
-        panelEstatus.add(jLabel2, gridBagConstraints);
+        panelEstatus.add(lblNombre, gridBagConstraints);
 
-        jLabel7.setText("Rol: ");
+        lblRol.setText("Rol: ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
-        panelEstatus.add(jLabel7, gridBagConstraints);
+        panelEstatus.add(lblRol, gridBagConstraints);
 
-        jLabel6.setText("Correo: ");
+        lblCorreo.setText("Correo: ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
-        panelEstatus.add(jLabel6, gridBagConstraints);
+        panelEstatus.add(lblCorreo, gridBagConstraints);
 
-        jLabel8.setText("Departamento: ");
+        lblDepartamento.setText("Departamento: ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
-        panelEstatus.add(jLabel8, gridBagConstraints);
+        panelEstatus.add(lblDepartamento, gridBagConstraints);
 
         panelTabla.setLayout(new java.awt.BorderLayout(1, 1));
 
@@ -1885,9 +1923,39 @@ public class AdminDashboard extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnEliminarElementoActionPerformed
 
-    private void btnExportarPDFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarPDFActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnExportarPDFActionPerformed
+    private void btnGuardarPDFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarPDFActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Guardar PDF");
+        fileChooser.setSelectedFile(new File("reservacion.pdf"));
+
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection != JFileChooser.APPROVE_OPTION) {
+            return; // Si el usuario cancela, no hacer nada
+        }
+
+        File fileToSave = fileChooser.getSelectedFile();
+        String rutaArchivo = fileToSave.getAbsolutePath();
+
+        Document document = new Document();
+        try {
+            PdfWriter.getInstance(document, new FileOutputStream(rutaArchivo));
+            document.open();
+
+            // Agregar imagen como encabezado al PDF
+            Image imagen1 = loadImageFromResources("/Images/Encabezado.png");
+            if (imagen1 != null) {
+                addImageToDocument(document, imagen1, 0.5f);  // Ajustar imagen a la mitad del ancho del documento y centrarla
+            }
+
+            addTextDataToDocument(document);
+            createMaterialsTable(document);
+
+            document.close();
+            JOptionPane.showMessageDialog(null, "PDF guardado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } catch (FileNotFoundException | DocumentException e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_btnGuardarPDFActionPerformed
 
     private void cboMaterialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboMaterialActionPerformed
         // TODO add your handling code here:
@@ -2750,7 +2818,142 @@ public class AdminDashboard extends javax.swing.JFrame {
     private void opcionEstadisticasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionEstadisticasActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_opcionEstadisticasActionPerformed
+
+    private void btnEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Seleccionar PDF para enviar");
+        fileChooser.setSelectedFile(new File("reservacion.pdf"));
+
+        int userSelection = fileChooser.showOpenDialog(this);
+        if (userSelection != JFileChooser.APPROVE_OPTION) {
+            return; // Si el usuario cancela, no hacer nada
+        }
+
+        File fileToSend = fileChooser.getSelectedFile();
+        String rutaArchivo = fileToSend.getAbsolutePath();
+        String emailDestinatario = JOptionPane.showInputDialog(this, "Ingrese el correo electrónico del destinatario:");
+
+        if (emailDestinatario != null && !emailDestinatario.isEmpty()) {
+            enviarEmail(emailDestinatario, rutaArchivo);
+        } else {
+            JOptionPane.showMessageDialog(null, "No se proporcionó un correo electrónico válido.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnEnviarActionPerformed
     
+    private void enviarEmail(String destinatario, String rutaArchivo) {
+        // Configurar propiedades de la conexión SMTP
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com"); // Servidor SMTP de Gmail
+        props.put("mail.smtp.port", "587"); // Puerto SMTP (normalmente 25, 465 o 587)
+        props.put("mail.smtp.auth", "true"); // Habilitar autenticación SMTP
+        props.put("mail.smtp.starttls.enable", "true"); // Habilitar STARTTLS para seguridad
+
+        // Crear una sesión de correo electrónico con autenticación
+        Session session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication("labtimemanager@gmail.com", "ocenyirarrvajqgx");
+            }
+        });
+
+        try {
+            // Crear un mensaje de correo electrónico
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress("labtimemanager@gmail.com")); // Dirección de correo del remitente
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario)); // Dirección de correo del destinatario
+            message.setSubject("LabtimeManager"); // Asunto del correo electrónico
+
+            // Cuerpo del correo electrónico
+            BodyPart messageBodyPart = new MimeBodyPart();
+            messageBodyPart.setText("Reporte de Reservacion de Laboratorio");
+
+            // Adjuntar el archivo PDF
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(messageBodyPart);
+            messageBodyPart = new MimeBodyPart();
+            DataSource source = new FileDataSource(rutaArchivo); // Ruta del archivo PDF
+            messageBodyPart.setDataHandler(new DataHandler(source));
+            messageBodyPart.setFileName("reservacion.pdf"); // Nombre del archivo adjunto
+            multipart.addBodyPart(messageBodyPart);
+            message.setContent(multipart);
+
+            // Enviar el mensaje de correo electrónico
+            Transport.send(message);
+            JOptionPane.showMessageDialog(null, "Correo electrónico enviado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private byte[] inputStreamToByteArray(InputStream input) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int nRead;
+        byte[] data = new byte[1024];
+        while ((nRead = input.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+        buffer.flush();
+        return buffer.toByteArray();
+    }
+
+    private Image loadImageFromResources(String path) {
+        try {
+            InputStream stream = getClass().getResourceAsStream(path);
+            if (stream != null) {
+                return Image.getInstance(inputStreamToByteArray(stream));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void addImageToDocument(Document document, Image image, float scale) throws DocumentException {
+        float scaler = ((document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin()) * scale) / image.getWidth();
+        image.scalePercent(scaler * 100);  // Escalar imagen según el porcentaje calculado
+        float x = (document.getPageSize().getWidth() - image.getScaledWidth()) / 2;  // Centrar imagen
+        float y = document.getPageSize().getHeight() - image.getScaledHeight() - 50;  // Posición y con algo de margen superior
+        image.setAbsolutePosition(x, y);
+        document.add(image);
+    }
+
+    private void addTextDataToDocument(Document document) throws DocumentException {
+        Paragraph paragraph = new Paragraph("\n\n\n\n\nREPORTE DE RESERVACIÓN DE LABORATORIO");
+        paragraph.setAlignment(Element.ALIGN_CENTER);
+        document.add(paragraph);
+        document.add(new Paragraph("\n....................................................................................\n\n"));
+        document.add(new Paragraph("\t\tDatos del usuario:\n"));
+        document.add(new Paragraph("     " + checkNull(lblNombre.getText())));
+        document.add(new Paragraph("     " + checkNull(lblCorreo.getText())));
+        document.add(new Paragraph("     " + checkNull(lblRol.getText())));
+        document.add(new Paragraph("     " + checkNull(lblDepartamento.getText())));
+        document.add(new Paragraph("\n....................................................................................\n\n"));
+        document.add(new Paragraph("\t\tDatos de la reservacion:\n"));
+        document.add(new Paragraph("     Fecha: " + checkNull(lblDate.getText())));
+        document.add(new Paragraph("     Hora: " + checkNull(cboHorasI.getSelectedItem()) + " - " + checkNull(cboHorasF.getSelectedItem())));
+        document.add(new Paragraph("     Laboratorio: " + checkNull(cboLaboratorios.getSelectedItem())));
+        document.add(new Paragraph("     Descripcion: " + checkNull(txtPurpose.getText())));
+        document.add(new Paragraph("\n....................................................................................\n\n"));
+    }
+
+    private void createMaterialsTable(Document document) throws DocumentException {
+        PdfPTable table = new PdfPTable(2); // 2 columnas
+        table.setWidthPercentage(100); // La tabla ocupa el 100% del ancho del documento
+        table.addCell("Material");
+        table.addCell("Cantidad");
+        for (int i = 0; i < tablaMateriales.getRowCount(); i++) {
+            String material = checkNull(tablaMateriales.getValueAt(i, 0));
+            String cantidad = checkNull(tablaMateriales.getValueAt(i, 1));
+            table.addCell(material);
+            table.addCell(cantidad);
+        }
+        document.add(table); // Añadir la tabla al documento
+    }
+    
+    private String checkNull(Object value) {
+        return value != null ? value.toString() : "No especificado";
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -2813,7 +3016,8 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JButton btnBuscarReservacion;
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnEliminarElemento;
-    private javax.swing.JButton btnExportarPDF;
+    private javax.swing.JButton btnEnviar;
+    private javax.swing.JButton btnGuardarPDF;
     private javax.swing.JButton btnHacerReservacion;
     private javax.swing.JButton btnLBuscar;
     private javax.swing.JButton btnLEliminar;
@@ -2854,7 +3058,6 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
     private javax.swing.JLabel jLabel22;
@@ -2874,9 +3077,6 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel37;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -2885,7 +3085,11 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JLabel lblCorreo;
     private javax.swing.JLabel lblDate;
+    private javax.swing.JLabel lblDepartamento;
+    private javax.swing.JLabel lblNombre;
+    private javax.swing.JLabel lblRol;
     private javax.swing.JLabel lblSelectHora;
     private javax.swing.JLabel lblSelectLaboratorio;
     private javax.swing.JLabel lblSelectMateriales;
