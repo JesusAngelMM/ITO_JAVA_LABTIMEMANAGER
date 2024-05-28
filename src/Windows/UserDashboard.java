@@ -1230,7 +1230,7 @@ public class UserDashboard extends javax.swing.JFrame {
     private void opcionAyudaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionAyudaActionPerformed
         try {
             try {
-                Desktop.getDesktop().browse(new URI("https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER.git"));
+                Desktop.getDesktop().browse(new URI("https://jesusangelmm.github.io/Proyectos/LabTimeManager/Inicio"));
             } catch (IOException ex) {
                 Logger.getLogger(UserDashboard.class.getName()).log(Level.SEVERE, null, ex);
             }
