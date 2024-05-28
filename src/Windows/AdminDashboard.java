@@ -1,26 +1,7 @@
 package Windows;
 
-
-import java.util.Properties;
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
-import javax.mail.*;
-import javax.mail.internet.*;
-
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
-
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Image;
-
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatLightLaf;
-import com.itextpdf.text.pdf.PdfPTable;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Desktop;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -28,30 +9,64 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
 import java.sql.SQLException;
-import java.lang.ClassNotFoundException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.Authenticator;
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 
-import javax.mail.Session;
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
+
+import org.jfree.data.category.DefaultCategoryDataset;
 
 public class AdminDashboard extends javax.swing.JFrame {
 
@@ -815,6 +830,12 @@ public class AdminDashboard extends javax.swing.JFrame {
         cboOpcionesBusquedaM = new javax.swing.JComboBox<>();
         jLabel37 = new javax.swing.JLabel();
         Statitics = new javax.swing.JDialog();
+        tabbedEstadisticas = new javax.swing.JTabbedPane();
+        jPanel1 = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel38 = new javax.swing.JLabel();
         grupoBotonesAdmin = new javax.swing.ButtonGroup();
         panelBienvenida = new javax.swing.JPanel();
         txtBievenida = new javax.swing.JLabel();
@@ -1542,17 +1563,85 @@ public class AdminDashboard extends javax.swing.JFrame {
             .addComponent(panelModifyMaterials, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
         );
 
+        Statitics.setTitle("Estadísticas");
         Statitics.setResizable(false);
+
+        tabbedEstadisticas.setName(""); // NOI18N
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 988, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 488, Short.MAX_VALUE)
+        );
+
+        tabbedEstadisticas.addTab("Materiales", jPanel1);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 988, Short.MAX_VALUE)
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 488, Short.MAX_VALUE)
+        );
+
+        tabbedEstadisticas.addTab("Laboratorios", jPanel2);
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 988, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 488, Short.MAX_VALUE)
+        );
+
+        tabbedEstadisticas.addTab("Reservaciones", jPanel3);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 988, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 488, Short.MAX_VALUE)
+        );
+
+        tabbedEstadisticas.addTab("Horas", jPanel4);
+
+        jLabel38.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel38.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel38.setText("Gráficas y Estadísticas");
 
         javax.swing.GroupLayout StatiticsLayout = new javax.swing.GroupLayout(Statitics.getContentPane());
         Statitics.getContentPane().setLayout(StatiticsLayout);
         StatiticsLayout.setHorizontalGroup(
             StatiticsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(StatiticsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(StatiticsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(tabbedEstadisticas)
+                    .addComponent(jLabel38, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         StatiticsLayout.setVerticalGroup(
             StatiticsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(StatiticsLayout.createSequentialGroup()
+                .addComponent(jLabel38)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tabbedEstadisticas)
+                .addContainerGap())
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -2816,7 +2905,13 @@ public class AdminDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_opcionOscuroActionPerformed
 
     private void opcionEstadisticasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionEstadisticasActionPerformed
-        // TODO add your handling code here:
+        crearGraficoMateriales();
+        crearGraficoLaboratorios();
+        crearGraficoHoras();
+        crearGraficoTipoReservacion();
+        Statitics.setSize(1000, 560);
+        Statitics.setLocationRelativeTo(null);
+        Statitics.setVisible(true);
     }//GEN-LAST:event_opcionEstadisticasActionPerformed
 
     private void btnEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarActionPerformed
@@ -2950,6 +3045,308 @@ public class AdminDashboard extends javax.swing.JFrame {
         document.add(table); // Añadir la tabla al documento
     }
     
+    private void crearGraficoMateriales() {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {   // Conectar a la base de datos
+            conn = DriverManager.getConnection(URL, usuario, contrasena);
+            // Consulta SQL para obtener la frecuencia de reservaciones por materiales
+            String sql = "SELECT m.name AS material_name, SUM(rm.quantity) AS usage_count "
+                    + "FROM MATERIAL m "
+                    + "LEFT JOIN RESERVATION_MATERIAL rm ON m.id_material = rm.id_material "
+                    + "GROUP BY m.id_material "
+                    + "HAVING usage_count > 0 "
+                    + "ORDER BY usage_count DESC";
+            stmt = conn.prepareStatement(sql);
+            rs = stmt.executeQuery();
+
+            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+            while (rs.next()) {
+                String materialName = rs.getString("material_name");
+                int usageCount = rs.getInt("usage_count");
+                dataset.addValue(usageCount, "Uso", materialName);
+            }
+
+            // Crear y configurar el gráfico de barras
+            JFreeChart barChart = ChartFactory.createBarChart(
+                    "",
+                    "Materiales",
+                    "Cantidad Usada",
+                    dataset);
+
+            CategoryPlot plot = (CategoryPlot) barChart.getPlot();
+            CategoryAxis domainAxis = plot.getDomainAxis();
+            domainAxis.setMaximumCategoryLabelLines(2); // Permitir dos líneas para etiquetas de categorías
+            // Configurar el eje Y para que muestre números enteros
+            NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+            rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+            // Asignar color las barras del gráfico
+            BarRenderer renderer = (BarRenderer) plot.getRenderer();
+            Color color = Color.BLUE;
+            for (int i = 0; i < dataset.getRowCount(); i++) {
+                renderer.setSeriesPaint(i, color);
+            }
+
+            // Mostrar el gráfico en un panel
+            ChartPanel chartPanel = new ChartPanel(barChart);
+            chartPanel.setPreferredSize(new java.awt.Dimension(560, 370));
+
+            // Limpiar el jPanel y agregar el nuevo chartPanel
+            jPanel1.removeAll();
+            jPanel1.setLayout(new java.awt.BorderLayout());
+            jPanel1.add(chartPanel, BorderLayout.CENTER);
+            jPanel1.validate();
+        } catch (SQLException ex) {
+            Logger.getLogger(AdminDashboard.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            // Cerrar conexiones y liberar recursos
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(AdminDashboard.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    private void crearGraficoLaboratorios() {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            // Conectar a la base de datos
+            conn = DriverManager.getConnection(URL, usuario, contrasena);
+            // Consulta SQL para obtener la frecuencia de reservaciones por laboratorio
+            String sql = "SELECT l.name AS lab_name, COUNT(r.id_lab) AS reservation_count "
+                    + "FROM LABORATORY l "
+                    + "JOIN RESERVATION r ON l.id_lab = r.id_lab "
+                    + "GROUP BY l.id_lab "
+                    + "ORDER BY reservation_count DESC "
+                    + "LIMIT 6";
+            stmt = conn.prepareStatement(sql);
+            rs = stmt.executeQuery();
+
+            // Procesar los resultados de la consulta y almacenarlos en un mapa
+            Map<String, Integer> labFrequencies = new HashMap<>();
+            while (rs.next()) {
+                String labName = rs.getString("lab_name");
+                int reservationCount = rs.getInt("reservation_count");
+                labFrequencies.put(labName, reservationCount);
+            }
+
+            // Crear el dataset para el gráfico de barras
+            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+            labFrequencies.forEach((lab, count) -> dataset.addValue(count, "Reservaciones", lab));
+
+            // Crear y configurar el gráfico de barras
+            JFreeChart barChart = ChartFactory.createBarChart(
+                    "",
+                    "Laboratorios",
+                    "Número de Reservaciones",
+                    dataset);
+
+            CategoryPlot plot = (CategoryPlot) barChart.getPlot();
+            CategoryAxis domainAxis = plot.getDomainAxis();
+            domainAxis.setMaximumCategoryLabelLines(2); // Permitir dos líneas para etiquetas de categorías
+            // Configurar el eje Y para que muestre números enteros
+            NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+            rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+            // Asignar color las barras del gráfico
+            BarRenderer renderer = (BarRenderer) plot.getRenderer();
+            Color color = Color.GREEN;
+            for (int i = 0; i < dataset.getRowCount(); i++) {
+                renderer.setSeriesPaint(i, color);
+            }
+
+            // Mostrar el gráfico en un panel
+            ChartPanel chartPanel = new ChartPanel(barChart);
+            chartPanel.setPreferredSize(new java.awt.Dimension(1000, 460));
+
+            // Limpiar el jPanel y agregar el nuevo chartPanel
+            jPanel2.removeAll();
+            jPanel2.setLayout(new java.awt.BorderLayout());
+            jPanel2.add(chartPanel, BorderLayout.CENTER);
+            jPanel2.validate();
+        } catch (SQLException ex) {
+            Logger.getLogger(AdminDashboard.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            // Cerrar conexiones y liberar recursos
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(AdminDashboard.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    private void crearGraficoTipoReservacion() {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        // Consulta SQL para obtener la frecuencia de reservaciones por tipo de reservacion
+        try {   // Conectar a la base de datos
+            conn = DriverManager.getConnection(URL, usuario, contrasena);
+            String sql = "SELECT type, COUNT(id_reservation) AS reservation_count "
+                    + "FROM RESERVATION "
+                    + "GROUP BY type "
+                    + "ORDER BY reservation_count DESC";
+            stmt = conn.prepareStatement(sql);
+            rs = stmt.executeQuery();
+
+            // Procesar los resultados de la consulta
+            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+            while (rs.next()) {
+                String type = rs.getString("type");
+                int reservationCount = rs.getInt("reservation_count");
+                dataset.addValue(reservationCount, "Reservaciones", type);
+            }
+
+            // Crear y configurar el gráfico de barras
+            JFreeChart barChart = ChartFactory.createBarChart(
+                    "",
+                    "Tipo de Reservación",
+                    "Número de Reservaciones",
+                    dataset);
+
+            CategoryPlot plot = (CategoryPlot) barChart.getPlot();
+            CategoryAxis domainAxis = plot.getDomainAxis();
+            domainAxis.setMaximumCategoryLabelLines(2); // Permitir dos líneas para etiquetas de categorías
+            // Configurar el eje Y para que muestre números enteros
+            NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+            rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+            // Asignar color las barras del gráfico
+            BarRenderer renderer = (BarRenderer) plot.getRenderer();
+            Color color = Color.YELLOW;
+            for (int i = 0; i < dataset.getRowCount(); i++) {
+                renderer.setSeriesPaint(i, color);
+            }
+
+            // Mostrar el gráfico en un panel
+            ChartPanel chartPanel = new ChartPanel(barChart);
+            chartPanel.setPreferredSize(new java.awt.Dimension(560, 370));
+
+            // Limpiar el jPanel y agregar el nuevo chartPanel
+            jPanel3.removeAll();
+            jPanel3.setLayout(new java.awt.BorderLayout());
+            jPanel3.add(chartPanel, BorderLayout.CENTER);
+            jPanel3.validate();
+        } catch (SQLException ex) {
+            Logger.getLogger(AdminDashboard.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                // Cerrar conexiones y liberar recursos
+                if (rs != null) {
+                    rs.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(AdminDashboard.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    private void crearGraficoHoras() {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {   // Conectar a la base de datos
+            conn = DriverManager.getConnection(URL, usuario, contrasena);
+            // Consulta SQL para obtener las 5 horas más concurridas
+            String sql = "SELECT CONCAT(HOUR(s.start_time), ':00 - ', HOUR(s.end_time), ':00') AS hour_range, "
+                    + "COUNT(r.id_schedule) AS reservation_count "
+                    + "FROM SCHEDULE s "
+                    + "JOIN RESERVATION r ON s.id_schedule = r.id_schedule "
+                    + "GROUP BY hour_range "
+                    + "ORDER BY reservation_count DESC "
+                    + "LIMIT 5"; // Obtener las 5 horas más concurridas
+            stmt = conn.prepareStatement(sql);
+            rs = stmt.executeQuery();
+
+            // Procesar los resultados de la consulta
+            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+            while (rs.next()) {
+                String hourRange = rs.getString("hour_range");
+                int reservationCount = rs.getInt("reservation_count");
+                dataset.addValue(reservationCount, "Reservaciones", hourRange);
+            }
+
+            // Crear y configurar el gráfico de barras
+            JFreeChart barChart = ChartFactory.createBarChart(
+                    "",
+                    "Hora",
+                    "Número de Reservaciones",
+                    dataset);
+
+            CategoryPlot plot = (CategoryPlot) barChart.getPlot();
+            CategoryAxis domainAxis = plot.getDomainAxis();
+            domainAxis.setMaximumCategoryLabelLines(2); // Permitir dos líneas para etiquetas de categorías
+            // Configurar el eje Y para que muestre números enteros
+            NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+            rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+            // Asignar color las barras del gráfico
+            BarRenderer renderer = (BarRenderer) plot.getRenderer();
+            Color color = Color.RED;
+            for (int i = 0; i < dataset.getRowCount(); i++) {
+                renderer.setSeriesPaint(i, color);
+            }
+
+            // Mostrar el gráfico en un panel
+            ChartPanel chartPanel = new ChartPanel(barChart);
+            chartPanel.setPreferredSize(new java.awt.Dimension(560, 370));
+
+            // Limpiar el jPanel y agregar el nuevo chartPanel
+            jPanel4.removeAll();
+            jPanel4.setLayout(new java.awt.BorderLayout());
+            jPanel4.add(chartPanel, BorderLayout.CENTER);
+            jPanel4.validate();
+        } catch (SQLException ex) {
+            Logger.getLogger(AdminDashboard.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                // Cerrar conexiones y liberar recursos
+                if (rs != null) {
+                    rs.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(AdminDashboard.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
     private String checkNull(Object value) {
         return value != null ? value.toString() : "No especificado";
     }
@@ -3075,9 +3472,14 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel35;
     private javax.swing.JLabel jLabel36;
     private javax.swing.JLabel jLabel37;
+    private javax.swing.JLabel jLabel38;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -3117,6 +3519,7 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JPanel panelReservation;
     private javax.swing.JPanel panelTabla;
     private javax.swing.JMenu subMenuApariencia;
+    private javax.swing.JTabbedPane tabbedEstadisticas;
     private javax.swing.JTable tablaHorariosSemana;
     private javax.swing.JTable tablaL;
     private javax.swing.JTable tablaM;
