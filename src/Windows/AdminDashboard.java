@@ -20,6 +20,7 @@ import com.itextpdf.text.Image;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import com.itextpdf.text.pdf.PdfPTable;
 import java.awt.Desktop;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -1940,16 +1941,14 @@ public class AdminDashboard extends javax.swing.JFrame {
             PdfWriter.getInstance(document, new FileOutputStream(rutaArchivo));
             document.open();
 
-            // Agregar imagen como encabezado al PDF y texto
+            // Agregar imagen como encabezado al PDF
             Image imagen1 = loadImageFromResources("/Images/Encabezado.png");
             if (imagen1 != null) {
-                addImageToDocument(document, imagen1, document.leftMargin());
+                addImageToDocument(document, imagen1, 0.5f);  // Ajustar imagen a la mitad del ancho del documento y centrarla
             }
-            Image imagen2 = loadImageFromResources("/Images/Pie de pagina.png");
-            if (imagen2 != null) {
-                addImageToDocument(document, imagen2, (document.getPageSize().getWidth() - imagen2.getScaledWidth()) / 2);
-            }
+
             addTextDataToDocument(document);
+            createMaterialsTable(document);
 
             document.close();
             JOptionPane.showMessageDialog(null, "PDF guardado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
@@ -2909,11 +2908,12 @@ public class AdminDashboard extends javax.swing.JFrame {
         return null;
     }
 
-    private void addImageToDocument(Document document, Image image, float xPosition) throws DocumentException {
-        float documentWidth = document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin();
-        image.scaleToFit(documentWidth, image.getHeight());
-        float y = document.getPageSize().getHeight() - image.getScaledHeight() - document.topMargin();
-        image.setAbsolutePosition(xPosition, y);
+    private void addImageToDocument(Document document, Image image, float scale) throws DocumentException {
+        float scaler = ((document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin()) * scale) / image.getWidth();
+        image.scalePercent(scaler * 100);  // Escalar imagen según el porcentaje calculado
+        float x = (document.getPageSize().getWidth() - image.getScaledWidth()) / 2;  // Centrar imagen
+        float y = document.getPageSize().getHeight() - image.getScaledHeight() - 50;  // Posición y con algo de margen superior
+        image.setAbsolutePosition(x, y);
         document.add(image);
     }
 
@@ -2921,20 +2921,39 @@ public class AdminDashboard extends javax.swing.JFrame {
         Paragraph paragraph = new Paragraph("\n\n\n\n\nREPORTE DE RESERVACIÓN DE LABORATORIO");
         paragraph.setAlignment(Element.ALIGN_CENTER);
         document.add(paragraph);
-        document.add(new Paragraph("\n\nDatos del usuario\n"));
-        document.add(new Paragraph("     " + lblNombre.getText()));
-        document.add(new Paragraph("     " + lblCorreo.getText()));
-        document.add(new Paragraph("     " + lblRol.getText()));
-        document.add(new Paragraph("     " + lblDepartamento.getText()));
-        document.add(new Paragraph("\n\nDatos de la reservacion\n"));
-        document.add(new Paragraph("     Fecha: " + lblDate.getText()));
-        document.add(new Paragraph("     Hora: " + cboHorasI.getSelectedItem() + " - " + cboHorasF.getSelectedItem()));
-        document.add(new Paragraph("     Laboratorio: " + cboLaboratorios.getSelectedItem()));
-        document.add(new Paragraph("     Lista de materiales: "));
-        for (int i = 0; i < tablaMateriales.getRowCount(); i++) {
-            document.add(new Paragraph("          - " + tablaMateriales.getValueAt(i, 0)));
-        }
+        document.add(new Paragraph("\n....................................................................................\n\n"));
+        document.add(new Paragraph("\t\tDatos del usuario:\n"));
+        document.add(new Paragraph("     " + checkNull(lblNombre.getText())));
+        document.add(new Paragraph("     " + checkNull(lblCorreo.getText())));
+        document.add(new Paragraph("     " + checkNull(lblRol.getText())));
+        document.add(new Paragraph("     " + checkNull(lblDepartamento.getText())));
+        document.add(new Paragraph("\n....................................................................................\n\n"));
+        document.add(new Paragraph("\t\tDatos de la reservacion:\n"));
+        document.add(new Paragraph("     Fecha: " + checkNull(lblDate.getText())));
+        document.add(new Paragraph("     Hora: " + checkNull(cboHorasI.getSelectedItem()) + " - " + checkNull(cboHorasF.getSelectedItem())));
+        document.add(new Paragraph("     Laboratorio: " + checkNull(cboLaboratorios.getSelectedItem())));
+        document.add(new Paragraph("     Descripcion: " + checkNull(txtPurpose.getText())));
+        document.add(new Paragraph("\n....................................................................................\n\n"));
     }
+
+    private void createMaterialsTable(Document document) throws DocumentException {
+        PdfPTable table = new PdfPTable(2); // 2 columnas
+        table.setWidthPercentage(100); // La tabla ocupa el 100% del ancho del documento
+        table.addCell("Material");
+        table.addCell("Cantidad");
+        for (int i = 0; i < tablaMateriales.getRowCount(); i++) {
+            String material = checkNull(tablaMateriales.getValueAt(i, 0));
+            String cantidad = checkNull(tablaMateriales.getValueAt(i, 1));
+            table.addCell(material);
+            table.addCell(cantidad);
+        }
+        document.add(table); // Añadir la tabla al documento
+    }
+    
+    private String checkNull(Object value) {
+        return value != null ? value.toString() : "No especificado";
+    }
+
     /**
      * @param args the command line arguments
      */
