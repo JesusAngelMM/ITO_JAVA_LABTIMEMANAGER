@@ -674,7 +674,7 @@
                 </Constraint>
               </Constraints>
             </Component>
-            <Component class="javax.swing.JLabel" name="jLabel2">
+            <Component class="javax.swing.JLabel" name="lblNombre">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Nombre: "/>
               </Properties>
@@ -684,7 +684,7 @@
                 </Constraint>
               </Constraints>
             </Component>
-            <Component class="javax.swing.JLabel" name="jLabel7">
+            <Component class="javax.swing.JLabel" name="lblRol">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Rol: "/>
               </Properties>
@@ -694,7 +694,7 @@
                 </Constraint>
               </Constraints>
             </Component>
-            <Component class="javax.swing.JLabel" name="jLabel6">
+            <Component class="javax.swing.JLabel" name="lblCorreo">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Correo: "/>
               </Properties>
@@ -704,7 +704,7 @@
                 </Constraint>
               </Constraints>
             </Component>
-            <Component class="javax.swing.JLabel" name="jLabel8">
+            <Component class="javax.swing.JLabel" name="lblDepartamento">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Departamento: "/>
               </Properties>

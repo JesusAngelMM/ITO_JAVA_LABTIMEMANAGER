@@ -1,9 +1,32 @@
 package Windows;
 
+
+import java.util.Properties;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.*;
+import javax.mail.internet.*;
+
+import javax.mail.Authenticator;
+import javax.mail.PasswordAuthentication;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Image;
+
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.Desktop;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -16,12 +39,17 @@ import java.lang.ClassNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.mail.Session;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import javax.mail.Session;
 
 
 public class UserDashboard extends javax.swing.JFrame {
@@ -102,10 +130,10 @@ public class UserDashboard extends javax.swing.JFrame {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                jLabel2.setText(jLabel2.getText() + rs.getString("username"));
-                jLabel6.setText(jLabel6.getText() + rs.getString("email"));
-                jLabel7.setText(jLabel7.getText() + rs.getString("role"));
-                jLabel8.setText(jLabel8.getText() + rs.getString("department"));
+                lblNombre.setText(lblNombre.getText() + rs.getString("username"));
+                lblCorreo.setText(lblCorreo.getText() + rs.getString("email"));
+                lblRol.setText(lblRol.getText() + rs.getString("role"));
+                lblDepartamento.setText(lblDepartamento.getText() + rs.getString("department"));
             }
 
             conn.close();
@@ -502,10 +530,10 @@ public class UserDashboard extends javax.swing.JFrame {
         panelEstatus = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
+        lblNombre = new javax.swing.JLabel();
+        lblRol = new javax.swing.JLabel();
+        lblCorreo = new javax.swing.JLabel();
+        lblDepartamento = new javax.swing.JLabel();
         panelTabla = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaHorarios = new javax.swing.JTable();
@@ -751,29 +779,29 @@ public class UserDashboard extends javax.swing.JFrame {
         gridBagConstraints.gridy = 1;
         panelEstatus.add(jLabel1, gridBagConstraints);
 
-        jLabel2.setText("Nombre: ");
+        lblNombre.setText("Nombre: ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
-        panelEstatus.add(jLabel2, gridBagConstraints);
+        panelEstatus.add(lblNombre, gridBagConstraints);
 
-        jLabel7.setText("Rol: ");
+        lblRol.setText("Rol: ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
-        panelEstatus.add(jLabel7, gridBagConstraints);
+        panelEstatus.add(lblRol, gridBagConstraints);
 
-        jLabel6.setText("Correo: ");
+        lblCorreo.setText("Correo: ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
-        panelEstatus.add(jLabel6, gridBagConstraints);
+        panelEstatus.add(lblCorreo, gridBagConstraints);
 
-        jLabel8.setText("Departamento: ");
+        lblDepartamento.setText("Departamento: ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
-        panelEstatus.add(jLabel8, gridBagConstraints);
+        panelEstatus.add(lblDepartamento, gridBagConstraints);
 
         panelPadre.add(panelEstatus);
 
@@ -1058,7 +1086,45 @@ public class UserDashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_btnEliminarElementoActionPerformed
 
     private void btnExportarPDFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarPDFActionPerformed
-        // TODO add your handling code here:
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Guardar PDF");
+        fileChooser.setSelectedFile(new File("reservacion.pdf"));
+
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection != JFileChooser.APPROVE_OPTION) {
+            return; // Si el usuario cancela, no hacer nada
+        }
+
+        File fileToSave = fileChooser.getSelectedFile();
+        String rutaArchivo = fileToSave.getAbsolutePath();
+
+        Document document = new Document();
+        try {
+            PdfWriter.getInstance(document, new FileOutputStream(rutaArchivo));
+            document.open();
+
+            // Agregar imagen como encabezado al PDF
+            Image imagen1 = loadImageFromResources("/Images/Encabezado.png");
+            if (imagen1 != null) {
+                addImageToDocument(document, imagen1, document.leftMargin());
+            }
+
+            // Agregar una imagen pequeña centrada
+            Image imagen2 = loadImageFromResources("/Images/Pie de pagina.png");
+            if (imagen2 != null) {
+                addImageToDocument(document, imagen2, (document.getPageSize().getWidth() - imagen2.getScaledWidth()) / 2);
+            }
+
+            // Texto y datos
+            addTextDataToDocument(document);
+
+            document.close();
+            JOptionPane.showMessageDialog(null, "PDF creado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } catch (FileNotFoundException | DocumentException e) {
+            e.printStackTrace();
+        }
+
+        enviarEmail(lblCorreo.getText().substring(8), rutaArchivo);
     }//GEN-LAST:event_btnExportarPDFActionPerformed
 
     private void cboMaterialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboMaterialActionPerformed
@@ -1188,6 +1254,101 @@ public class UserDashboard extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_opcionOscuroActionPerformed
     
+    
+    private void enviarEmail(String destinatario, String rutaArchivo) {
+        // Configurar propiedades de la conexión SMTP
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com"); // Servidor SMTP de Gmail
+        props.put("mail.smtp.port", "587"); // Puerto SMTP (normalmente 25, 465 o 587)
+        props.put("mail.smtp.auth", "true"); // Habilitar autenticación SMTP
+        props.put("mail.smtp.starttls.enable", "true"); // Habilitar STARTTLS para seguridad
+
+        // Crear una sesión de correo electrónico con autenticación
+        Session session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication("labtimemanager@gmail.com", "ocenyirarrvajqgx");
+            }
+        });
+
+        try {
+            // Crear un mensaje de correo electrónico
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress("labtimemanager@gmail.com")); // Dirección de correo del remitente
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario)); // Dirección de correo del destinatario
+            message.setSubject("LabtimeManager"); // Asunto del correo electrónico
+
+            // Cuerpo del correo electrónico
+            BodyPart messageBodyPart = new MimeBodyPart();
+            messageBodyPart.setText("Reporte de Reservacion de Laboratorio");
+
+            // Adjuntar el archivo PDF
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(messageBodyPart);
+            messageBodyPart = new MimeBodyPart();
+            DataSource source = new FileDataSource(rutaArchivo); // Ruta del archivo PDF
+            messageBodyPart.setDataHandler(new DataHandler(source));
+            messageBodyPart.setFileName("reservacion.pdf"); // Nombre del archivo adjunto
+            multipart.addBodyPart(messageBodyPart);
+            message.setContent(multipart);
+
+            // Enviar el mensaje de correo electrónico
+            Transport.send(message);
+            JOptionPane.showMessageDialog(null, "Correo electrónico enviado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private byte[] inputStreamToByteArray(InputStream input) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int nRead;
+        byte[] data = new byte[1024];
+        while ((nRead = input.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+        buffer.flush();
+        return buffer.toByteArray();
+    }
+    
+    private Image loadImageFromResources(String path) {
+        try {
+            InputStream stream = getClass().getResourceAsStream(path);
+            if (stream != null) {
+                return Image.getInstance(inputStreamToByteArray(stream));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void addImageToDocument(Document document, Image image, float xPosition) throws DocumentException {
+        float documentWidth = document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin();
+        image.scaleToFit(documentWidth, image.getHeight());
+        float y = document.getPageSize().getHeight() - image.getScaledHeight() - document.topMargin();
+        image.setAbsolutePosition(xPosition, y);
+        document.add(image);
+    }
+
+    private void addTextDataToDocument(Document document) throws DocumentException {
+        Paragraph paragraph = new Paragraph("\n\n\n\n\nREPORTE DE RESERVACIÓN DE LABORATORIO");
+        paragraph.setAlignment(Element.ALIGN_CENTER);
+        document.add(paragraph);
+        document.add(new Paragraph("\n\nDatos del usuario\n"));
+        document.add(new Paragraph("     " + lblNombre.getText()));
+        document.add(new Paragraph("     " + lblCorreo.getText()));
+        document.add(new Paragraph("     " + lblRol.getText()));
+        document.add(new Paragraph("     " + lblDepartamento.getText()));
+        document.add(new Paragraph("\n\nDatos de la reservacion\n"));
+        document.add(new Paragraph("     Fecha: " + lblDate.getText()));
+        document.add(new Paragraph("     Hora: " + cboHorasI.getSelectedItem() + " - " + cboHorasF.getSelectedItem()));
+        document.add(new Paragraph("     Laboratorio: " + cboLaboratorios.getSelectedItem()));
+        document.add(new Paragraph("     Lista de materiales: "));
+        for (int i = 0; i < tablaMateriales.getRowCount(); i++) {
+            document.add(new Paragraph("          - " + tablaMateriales.getValueAt(i, 0)));
+        }
+    }
     /**
      * @param args the command line arguments
      */
@@ -1248,16 +1409,16 @@ public class UserDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel19;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JLabel lblCorreo;
     private javax.swing.JLabel lblDate;
+    private javax.swing.JLabel lblDepartamento;
+    private javax.swing.JLabel lblNombre;
+    private javax.swing.JLabel lblRol;
     private javax.swing.JLabel lblSelectHora;
     private javax.swing.JLabel lblSelectLaboratorio;
     private javax.swing.JLabel lblSelectMateriales;
