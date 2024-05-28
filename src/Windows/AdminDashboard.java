@@ -726,7 +726,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         btnCancelar = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         tablaMateriales = new javax.swing.JTable();
-        btnExportarPDF = new javax.swing.JButton();
+        btnGuardarPDF = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
@@ -745,6 +745,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         btnActualizarReservacion = new javax.swing.JButton();
         btnBorrarReservacion = new javax.swing.JButton();
         jLabel9 = new javax.swing.JLabel();
+        btnEnviar = new javax.swing.JButton();
         ModifyUsers = new javax.swing.JDialog();
         panelModifyUsers = new javax.swing.JPanel();
         txtUMail = new javax.swing.JTextField();
@@ -899,7 +900,7 @@ public class AdminDashboard extends javax.swing.JFrame {
                 btnCancelarActionPerformed(evt);
             }
         });
-        panelReservation.add(btnCancelar, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 480, -1, -1));
+        panelReservation.add(btnCancelar, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 480, 100, -1));
 
         tablaMateriales.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -913,14 +914,14 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         panelReservation.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(386, 180, 322, 143));
 
-        btnExportarPDF.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/exportar_pdf.png"))); // NOI18N
-        btnExportarPDF.setText("Exportar");
-        btnExportarPDF.addActionListener(new java.awt.event.ActionListener() {
+        btnGuardarPDF.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/exportar_pdf.png"))); // NOI18N
+        btnGuardarPDF.setText("Exportar");
+        btnGuardarPDF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnExportarPDFActionPerformed(evt);
+                btnGuardarPDFActionPerformed(evt);
             }
         });
-        panelReservation.add(btnExportarPDF, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 430, 96, -1));
+        panelReservation.add(btnGuardarPDF, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 430, 100, -1));
 
         jLabel10.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel10.setText("Proposito:");
@@ -1010,11 +1011,20 @@ public class AdminDashboard extends javax.swing.JFrame {
                 btnBorrarReservacionActionPerformed(evt);
             }
         });
-        panelReservation.add(btnBorrarReservacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 430, -1, -1));
+        panelReservation.add(btnBorrarReservacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 430, 100, -1));
 
         jLabel9.setText("ID");
         jLabel9.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
         panelReservation.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 20, 80, 20));
+
+        btnEnviar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Images/gmail.png"))); // NOI18N
+        btnEnviar.setText("Enviar");
+        btnEnviar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEnviarActionPerformed(evt);
+            }
+        });
+        panelReservation.add(btnEnviar, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 480, 100, -1));
 
         javax.swing.GroupLayout ReservationLayout = new javax.swing.GroupLayout(Reservation.getContentPane());
         Reservation.getContentPane().setLayout(ReservationLayout);
@@ -1912,7 +1922,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnEliminarElementoActionPerformed
 
-    private void btnExportarPDFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarPDFActionPerformed
+    private void btnGuardarPDFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarPDFActionPerformed
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Guardar PDF");
         fileChooser.setSelectedFile(new File("reservacion.pdf"));
@@ -1930,29 +1940,23 @@ public class AdminDashboard extends javax.swing.JFrame {
             PdfWriter.getInstance(document, new FileOutputStream(rutaArchivo));
             document.open();
 
-            // Agregar imagen como encabezado al PDF
+            // Agregar imagen como encabezado al PDF y texto
             Image imagen1 = loadImageFromResources("/Images/Encabezado.png");
             if (imagen1 != null) {
                 addImageToDocument(document, imagen1, document.leftMargin());
             }
-
-            // Agregar una imagen pequeña centrada
             Image imagen2 = loadImageFromResources("/Images/Pie de pagina.png");
             if (imagen2 != null) {
                 addImageToDocument(document, imagen2, (document.getPageSize().getWidth() - imagen2.getScaledWidth()) / 2);
             }
-
-            // Texto y datos
             addTextDataToDocument(document);
 
             document.close();
-            JOptionPane.showMessageDialog(null, "PDF creado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "PDF guardado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         } catch (FileNotFoundException | DocumentException e) {
             e.printStackTrace();
         }
-
-        enviarEmail(lblCorreo.getText().substring(8), rutaArchivo);
-    }//GEN-LAST:event_btnExportarPDFActionPerformed
+    }//GEN-LAST:event_btnGuardarPDFActionPerformed
 
     private void cboMaterialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboMaterialActionPerformed
         // TODO add your handling code here:
@@ -2815,6 +2819,27 @@ public class AdminDashboard extends javax.swing.JFrame {
     private void opcionEstadisticasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opcionEstadisticasActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_opcionEstadisticasActionPerformed
+
+    private void btnEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Seleccionar PDF para enviar");
+        fileChooser.setSelectedFile(new File("reservacion.pdf"));
+
+        int userSelection = fileChooser.showOpenDialog(this);
+        if (userSelection != JFileChooser.APPROVE_OPTION) {
+            return; // Si el usuario cancela, no hacer nada
+        }
+
+        File fileToSend = fileChooser.getSelectedFile();
+        String rutaArchivo = fileToSend.getAbsolutePath();
+        String emailDestinatario = JOptionPane.showInputDialog(this, "Ingrese el correo electrónico del destinatario:");
+
+        if (emailDestinatario != null && !emailDestinatario.isEmpty()) {
+            enviarEmail(emailDestinatario, rutaArchivo);
+        } else {
+            JOptionPane.showMessageDialog(null, "No se proporcionó un correo electrónico válido.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnEnviarActionPerformed
     
     private void enviarEmail(String destinatario, String rutaArchivo) {
         // Configurar propiedades de la conexión SMTP
@@ -2972,7 +2997,8 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JButton btnBuscarReservacion;
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnEliminarElemento;
-    private javax.swing.JButton btnExportarPDF;
+    private javax.swing.JButton btnEnviar;
+    private javax.swing.JButton btnGuardarPDF;
     private javax.swing.JButton btnHacerReservacion;
     private javax.swing.JButton btnLBuscar;
     private javax.swing.JButton btnLEliminar;
