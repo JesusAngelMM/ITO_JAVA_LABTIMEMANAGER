@@ -1120,11 +1120,23 @@ public class UserDashboard extends javax.swing.JFrame {
                 addImageToDocument(document, imagen1, 0.5f);  // Ajustar imagen a la mitad del ancho del documento y centrarla
             }
 
-            addTextDataToDocument(document); 
+            addTextDataToDocument(document);
             createMaterialsTable(document);
 
             document.close();
             JOptionPane.showMessageDialog(null, "PDF guardado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+            // Abrir el archivo PDF
+            if (Desktop.isDesktopSupported()) {
+                Desktop desktop = Desktop.getDesktop();
+                if (fileToSave.exists()) {
+                    try {
+                        desktop.open(fileToSave);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         } catch (FileNotFoundException | DocumentException e) {
             e.printStackTrace();
         }
