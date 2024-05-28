@@ -1425,6 +1425,7 @@
     </Container>
     <Container class="javax.swing.JDialog" name="Statitics">
       <Properties>
+        <Property name="title" type="java.lang.String" value="Estad&#xed;sticas"/>
         <Property name="resizable" type="boolean" value="false"/>
       </Properties>
 
@@ -1553,7 +1554,7 @@
         <Component class="javax.swing.JLabel" name="jLabel38">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="18" style="1"/>
+              <Font name="Segoe UI" size="18" style="0"/>
             </Property>
             <Property name="horizontalAlignment" type="int" value="0"/>
             <Property name="text" type="java.lang.String" value="Gr&#xe1;ficas y Estad&#xed;sticas"/>

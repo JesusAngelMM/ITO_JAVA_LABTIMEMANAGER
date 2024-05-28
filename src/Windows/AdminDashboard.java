@@ -1563,6 +1563,7 @@ public class AdminDashboard extends javax.swing.JFrame {
             .addComponent(panelModifyMaterials, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
         );
 
+        Statitics.setTitle("Estadísticas");
         Statitics.setResizable(false);
 
         tabbedEstadisticas.setName(""); // NOI18N
@@ -1619,7 +1620,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         tabbedEstadisticas.addTab("Horas", jPanel4);
 
-        jLabel38.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel38.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel38.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel38.setText("Gráficas y Estadísticas");
 
@@ -3070,7 +3071,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
             // Crear y configurar el gráfico de barras
             JFreeChart barChart = ChartFactory.createBarChart(
-                    "Materiales Más Usados",
+                    "",
                     "Materiales",
                     "Cantidad Usada",
                     dataset);
@@ -3150,7 +3151,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
             // Crear y configurar el gráfico de barras
             JFreeChart barChart = ChartFactory.createBarChart(
-                    "Frecuencia de laboratorios",
+                    "",
                     "Laboratorios",
                     "Número de Reservaciones",
                     dataset);
@@ -3222,7 +3223,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
             // Crear y configurar el gráfico de barras
             JFreeChart barChart = ChartFactory.createBarChart(
-                    "Tipo de Reservación Más Realizada",
+                    "",
                     "Tipo de Reservación",
                     "Número de Reservaciones",
                     dataset);
@@ -3298,7 +3299,7 @@ public class AdminDashboard extends javax.swing.JFrame {
 
             // Crear y configurar el gráfico de barras
             JFreeChart barChart = ChartFactory.createBarChart(
-                    "Horas Más Concurridas",
+                    "",
                     "Hora",
                     "Número de Reservaciones",
                     dataset);
