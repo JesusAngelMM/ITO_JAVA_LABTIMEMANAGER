@@ -177,19 +177,19 @@ db.password=password
 
 ### Inicio de Sesión
 
-![Pantalla de Inicio de Sesión](https://jesusangelmm.github.io/Proyectos/LabTimeManager/Inicio)
+![Pantalla de Inicio de Sesión](/Imagenes/documentacion1)
 
 ### Reserva de Laboratorios
 
-![Reserva de Laboratorios](https://jesusangelmm.github.io/Proyectos/LabTimeManager/Manual)
+![Reserva de Laboratorios](/Imagenes/Manual3.png)
 
 ### Gestión de Usuarios
 
-![Gestión de Usuarios](https://jesusangelmm.github.io/Proyectos/LabTimeManager/Manual)
+![Gestión de Usuarios](/Imagenes/Manual4.png)
 
 ### Generación de Reportes
 
-![Generación de Reportes](https://jesusangelmm.github.io/Proyectos/LabTimeManager/Manual)
+![Generación de Reportes](/Imagenes/Manual8.png)
 
 ---
 
