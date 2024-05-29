@@ -176,20 +176,54 @@ db.password=password
 ## Ejemplos de Uso
 
 ### Inicio de Sesión
-
 ![Pantalla de Inicio de Sesión](/Imagenes/documentacion1)
 
-### Reserva de Laboratorios
+![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/4768fb46-2adb-4df8-beb9-fc5b00a923c9)
 
+### Reserva de Laboratorios
 ![Reserva de Laboratorios](/Imagenes/Manual3.png)
 
 ### Gestión de Usuarios
-
 ![Gestión de Usuarios](/Imagenes/Manual4.png)
 
-### Generación de Reportes
+#### Usuario Administrador
+![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/22b15ea3-d1e7-4219-a58c-580a2b83f02c)
 
+##### Modificar Reservación
+![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/993950b1-f2ab-4138-b523-227865219cc9)
+
+##### Modificar Usuarios
+![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/5dc5c448-1bef-4ca0-83b6-f8109b926372)
+
+##### Modificar Laboratorios
+![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/88896fa0-0cca-45a7-8cdf-729e879332c3)
+
+##### Modificar Material
+![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/6169fe58-e830-4582-996d-fa1fd1b1c74e)
+
+##### Ver estadisticas
+![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/ebe6d0cf-0af0-4b9d-bf20-9db2eefec0eb)
+![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/5502208f-140a-4249-8b96-7d59621dba55)
+![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/81353c4f-94e7-4b75-8722-6d759243cbe9)
+![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/24402686-247a-4a1a-8fb9-f92ff8aea02a)
+
+
+#### Usuario
+![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/a20efa44-f7ac-4aa6-bbdc-ebaab2af5cfc)
+
+##### Ver reservaciones
+![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/28fb6ea6-4b67-4356-afaf-5ac0c2f59326)
+
+
+### Generación de Reportes
 ![Generación de Reportes](/Imagenes/Manual8.png)
+
+### Preferencias de apariencia para usuarios
+![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/4523cc6d-515b-4ad7-9429-a05b9b12157b)
+
+### Ayuda: Manual y documentación
+![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/40c3af1f-6235-4766-9135-6e24a34d893f)
+![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/f0af79ff-c186-4ac7-bd07-5bb29cecb6a7)
 
 ---
 
