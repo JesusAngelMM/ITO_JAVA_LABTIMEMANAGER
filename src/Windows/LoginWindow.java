@@ -401,7 +401,7 @@ public class LoginWindow extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try {
             try {
-                Desktop.getDesktop().browse(new URI("https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER.git"));
+                Desktop.getDesktop().browse(new URI("https://jesusangelmm.github.io/Proyectos/LabTimeManager/Inicio"));
             } catch (URISyntaxException ex) {
                 Logger.getLogger(AdminDashboard.class.getName()).log(Level.SEVERE, null, ex);
             }
