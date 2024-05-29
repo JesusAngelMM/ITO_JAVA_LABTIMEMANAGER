@@ -227,11 +227,12 @@ db.password=password
 
 **Descripción:** Los administradores pueden visualizar estadísticas detalladas sobre el uso de los laboratorios y materiales. Esta información ayuda en la toma de decisiones y la planificación de recursos.
 
-![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/ebe6d0cf-0af0-4b9d-bf20-9db2eefec0eb)
-![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/5502208f-140a-4249-8b96-7d59621dba55)
-![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/81353c4f-94e7-4b75-8722-6d759243cbe9)
-![image](https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/24402686-247a-4a1a-8fb9-f92ff8aea02a)
-
+<p align="center">
+  <img src="https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/ebe6d0cf-0af0-4b9d-bf20-9db2eefec0eb" width="300"/>
+  <img src="https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/5502208f-140a-4249-8b96-7d59621dba55" width="300"/>
+  <img src="https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/81353c4f-94e7-4b75-8722-6d759243cbe9" width="300"/>
+  <img src="https://github.com/JesusAngelMM/ITO_JAVA_LABTIMEMANAGER/assets/167843278/24402686-247a-4a1a-8fb9-f92ff8aea02a" width="300"/>
+</p>
 
 #### Usuario
 
